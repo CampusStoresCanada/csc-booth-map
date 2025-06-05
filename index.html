@@ -718,9 +718,8 @@ async function fetchBoothDataFromNotion() {
                 
                 // Extract company name from Contact Verified field
                 let companyName = '';
-                const contactVerified = item.properties['Contact Verified']?.rich_text?.[0]?.plain_text;
-                if (contactVerified && status === 'sold') {
-                    companyName = contactVerified.split(' (')[0] || 'SOLD';
+                if (status === 'sold') {
+                    companyName = 'SOLD'; // We'll fix this later when we get real data
                 }
                 
                 // Update booth data if it exists
