@@ -922,8 +922,43 @@ setTimeout(() => {
         // Try to define it inline as a backup
         window.updateAllBooths = function() {
             console.log('Using backup updateAllBooths');
-            // Copy the updateAllBooths function body here if needed
-        };
+            const svgElement = document.querySelector('#boothMapContainer svg');
+            if (!svgElement) {
+                console.error('SVG element not found');
+                return;
+            }
+
+        // Re-run booth update logic for all booths
+        for (const boothId in boothData) {
+            if (boothData.hasOwnProperty(boothId)) {
+                const boothInfo = boothData[boothId];
+                let boothElementToUpdate = svgElement.querySelector(`#${boothId}`); 
+                let isGroup = false;
+
+                if (!boothElementToUpdate) {
+                    const groupID = `_${boothId}`; 
+                    const boothGroupElement = svgElement.querySelector(`#${groupID}`);
+                    if (boothGroupElement) {
+                         boothElementToUpdate = boothGroupElement.querySelector('rect');
+                         if (boothElementToUpdate) isGroup = true;
+                    }
+                }
+            
+                if (boothElementToUpdate) {
+                    const parentNodeForClass = isGroup ? boothElementToUpdate.parentNode : boothElementToUpdate;
+                    parentNodeForClass.classList.remove('booth-available', 'booth-sold', 'booth-reserved');
+                    if (boothInfo.status === 'sold') {
+                        parentNodeForClass.classList.add('booth-sold');
+                    } else if (boothInfo.status === 'reserved') {
+                        parentNodeForClass.classList.add('booth-reserved');
+                    } else {
+                        parentNodeForClass.classList.add('booth-available');
+                    }
+                    updateBoothElement(boothElementToUpdate, boothInfo, boothId);
+                }
+            }
+        }
+    };
     }
 }, 100);
    
