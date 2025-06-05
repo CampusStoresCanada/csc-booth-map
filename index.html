@@ -753,7 +753,7 @@ async function fetchBoothDataFromNotion() {
     localStorage.setItem('lastUpdate', Date.now().toString());
         
     // Update the map with new data
-    updateAllBooths();
+updateAllBooths();
         
         lastUpdateTime = new Date();
         console.log(`Map updated: ${updatedCount} booths changed at ${lastUpdateTime.toLocaleTimeString()}`);
