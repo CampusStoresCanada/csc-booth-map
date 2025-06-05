@@ -10,8 +10,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Since you're using OAuth, we need a different approach
-    // For now, let's return some test data to make sure the structure works
     const testData = {
       results: [
         {
