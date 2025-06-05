@@ -748,12 +748,12 @@ async function fetchBoothDataFromNotion() {
             }
         });
         
-        // Save to localStorage as fallback
-        localStorage.setItem('boothData', JSON.stringify(boothData));
-        localStorage.setItem('lastUpdate', Date.now().toString());
+    // Save to localStorage as fallback
+    localStorage.setItem('boothData', JSON.stringify(boothData));
+    localStorage.setItem('lastUpdate', Date.now().toString());
         
-        // Update the map with new data
-        updateAllBooths();
+    // Update the map with new data
+    updateAllBooths();
         
         lastUpdateTime = new Date();
         console.log(`Map updated: ${updatedCount} booths changed at ${lastUpdateTime.toLocaleTimeString()}`);
