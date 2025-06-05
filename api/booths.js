@@ -15,23 +15,36 @@ export default async function handler(req, res) {
         {
           properties: {
             'Booth Number': {
-              title: [{ plain_text: '100' }]  // String/title field
+              title: [{ plain_text: '100' }]  // This should change Booth_100
             },
             'Status': {
-              status: { name: 'sold' }  // Status field
+              status: { name: 'sold' }
             },
             'Contact Verified': {
-              relation: [{ id: 'some-id' }]  // Relation field - we'll ignore for now
+              relation: []
             }
           }
         },
         {
           properties: {
             'Booth Number': {
-              title: [{ plain_text: '101' }]
+              title: [{ plain_text: '201' }]  // This should change Booth_201 (VitalSource)
             },
             'Status': {
-              status: { name: 'available' }
+              status: { name: 'available' }  // This should make it available instead of sold
+            },
+            'Contact Verified': {
+              relation: []
+            }
+          }
+        },
+        {
+          properties: {
+            'Booth Number': {
+              title: [{ plain_text: '501' }]  // This should change Booth_501 (Login)
+            },
+            'Status': {
+              status: { name: 'available' }  // This should make it available instead of sold
             },
             'Contact Verified': {
               relation: []
