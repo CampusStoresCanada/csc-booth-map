@@ -913,7 +913,20 @@ document.addEventListener('DOMContentLoaded', () => {
    console.log('Initializing live booth map...');
    
    // Initial map setup with static data
-   setTimeout(() => updateAllBooths(), 100);
+setTimeout(() => {
+    console.log('Attempting to call updateAllBooths...');
+    if (typeof updateAllBooths === 'function') {
+        updateAllBooths();
+        console.log('updateAllBooths called successfully');
+    } else {
+        console.error('updateAllBooths function not found!');
+        // Try to define it inline as a backup
+        window.updateAllBooths = function() {
+            console.log('Using backup updateAllBooths');
+            // Copy the updateAllBooths function body here if needed
+        };
+    }
+}, 100);
    
    // Start polling for live updates
    fetchBoothDataFromNotion(); // Initial fetch
