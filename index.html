@@ -716,10 +716,10 @@ async function fetchBoothDataFromNotion() {
                 const boothId = `Booth_${boothNumber}`;
                 const status = item.properties['Status']?.status?.name?.toLowerCase() || 'available';
                 
-                // Extract company name from Contact Verified field
+                // Extract company name from enriched organization data
                 let companyName = '';
                 if (status === 'sold') {
-                    companyName = 'SOLD'; // We'll fix this later when we get real data
+                    companyName = item._organizationName || 'SOLD';
                 }
                 
                 // Update booth data if it exists
