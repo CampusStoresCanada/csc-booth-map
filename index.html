@@ -710,7 +710,7 @@ async function fetchBoothDataFromNotion() {
         let updatedCount = 0;
         data.results.forEach(item => {
             try {
-                const boothNumber = item.properties['Booth Number']?.number;
+                const boothNumber = item.properties['Booth Number']?.title?.[0]?.plain_text;
                 if (!boothNumber) return;
                 
                 const boothId = `Booth_${boothNumber}`;
