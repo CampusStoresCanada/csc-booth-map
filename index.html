@@ -3,28 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://use.typekit.net/ilr6ctr.css">
     <title>Interactive Conference Booth Map</title>
     <style>
         /* Apply a base font family to the body, but avoid aggressive global text-align */
         body {
-            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            font-family: 'davis-sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
             padding: 20px; /* Padding for the page content area */
             background-color: #f4f4f8;
             color: #333;
         }
 
-        /* Center the H2 heading specifically for the map */
         h2.booth-map-heading { /* Added class for specificity */
             color: #2c3e50;
-            margin-top: 20px; /* Added some top margin */
+            margin-top: 20px; 
             margin-bottom: 25px;
-            text-align: center; /* Center only this heading */
+            text-align: center; 
         }
 
         #boothMapContainer {
             max-width: 1200px;
-            margin: 0 auto; /* This centers the block-level container */
+            margin: 0 auto; 
             padding: 15px;
             background-color: #ffffff;
             border-radius: 8px;
@@ -34,7 +34,7 @@
         #boothMapContainer svg {
             width: 100%;
             height: auto;
-            display: block; /* Helps with margin centering if SVG is inline */
+            display: block; 
         }
 
         /* Styling for interactive booths based on class */
