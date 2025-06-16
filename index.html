@@ -873,55 +873,46 @@ async function fetchBoothDataFromNotion() {
 }
 
 function updateBoothElement(boothRectElement, boothInfo, boothIdKey) {
-    const svgElement = document.querySelector('#boothMapContainer svg');
-    
-    // Find the text element for this booth
-    let textElement = null;
     if (boothInfo.textElementId) {
-        textElement = svgElement.querySelector(`#${boothInfo.textElementId}`);
+        const textElement = document.querySelector(`#${boothInfo.textElementId}`);
+        if (textElement) textElement.style.display = 'none';
     }
     
-    // Apply styling based on status
+    // Clear any existing HTML label
+    const existingLabel = document.querySelector(`[data-booth-id="${boothIdKey}"]`);
+    if (existingLabel) existingLabel.remove();
+    
     if (boothInfo.status === "available") {
         boothRectElement.style.fill = "#fff";
         boothRectElement.style.cursor = "pointer";
         boothRectElement.classList.add('booth-available');
         boothRectElement.classList.remove('booth-sold', 'booth-reserved');
         
-        if (textElement) {
-            textElement.style.fill = "#5f5d61";
-            textElement.textContent = boothInfo.originalBoothText || "Available";
-            textElement.style.fontSize = "48px"; // Standard size
-        }
+        addBoothLabel(boothRectElement, boothInfo.originalBoothText, boothIdKey, 'available');
         
-        } else if (boothInfo.status === "sold") {
+    } else if (boothInfo.status === "sold") {
         boothRectElement.style.fill = "#991f22";
         boothRectElement.style.cursor = "default";
         boothRectElement.classList.add('booth-sold');
         boothRectElement.classList.remove('booth-available', 'booth-reserved');
-
-        if (boothInfo.status === "sold" && boothInfo.companyName) {
-            addBoothLabel(boothRectElement, boothInfo.companyName, boothIdKey);
-        } else if (boothInfo.status === "reserved") {
-            boothRectElement.style.fill = "#333333";
-            boothRectElement.style.cursor = "not-allowed";
-            boothRectElement.classList.add('booth-reserved');
-            boothRectElement.classList.remove('booth-available', 'booth-sold');
-            
-            if (textElement) {
-                textElement.style.fill = "#cccccc";
-                textElement.textContent = boothInfo.originalBoothText || "Reserved";
-                textElement.style.fontSize = "48px";
-            }
-        }
         
-        // Simple click handler - no complex event cleanup
-        boothRectElement.onclick = () => {
-            if (boothInfo.status === "available" && boothInfo.purchaseUrl) {
-                window.open(boothInfo.purchaseUrl, '_blank');
-            }
-        };
+        addBoothLabel(boothRectElement, boothInfo.companyName || 'SOLD', boothIdKey, 'sold');
+        
+    } else if (boothInfo.status === "reserved") {
+        boothRectElement.style.fill = "#333333";
+        boothRectElement.style.cursor = "not-allowed";
+        boothRectElement.classList.add('booth-reserved');
+        boothRectElement.classList.remove('booth-available', 'booth-sold');
+        
+        addBoothLabel(boothRectElement, boothInfo.originalBoothText, boothIdKey, 'reserved');
     }
+    
+    // Click handler
+    boothRectElement.onclick = () => {
+        if (boothInfo.status === "available" && boothInfo.purchaseUrl) {
+            window.open(boothInfo.purchaseUrl, '_blank');
+        }
+    };
 }
 
 // Initialize everything when DOM is ready
@@ -1035,57 +1026,35 @@ setTimeout(() => {
             }
         }
     }
-    function addBoothLabel(boothRect, companyName, boothId) {
-        // Clear any existing label for this booth
+    function addBoothLabel(boothRect, text, boothId, status) {
         const existingLabel = document.querySelector(`[data-booth-id="${boothId}"]`);
-        if (existingLabel) {
-            existingLabel.remove();
-        }
+        if (existingLabel) existingLabel.remove();
         
         const container = document.getElementById('boothLabels');
         if (!container) return;
         
-        // Get SVG coordinates instead of viewport coordinates
-        const svgElement = document.querySelector('#boothMapContainer svg');
-        const svgRect = svgElement.getBoundingClientRect();
-        const bbox = boothRect.getBBox();
+        const rect = boothRect.getBoundingClientRect();
+        const containerRect = document.getElementById('boothMapContainer').getBoundingClientRect();
         
-        // Calculate position relative to the map container
-        const scaleX = svgRect.width / svgElement.viewBox.baseVal.width;
-        const scaleY = svgRect.height / svgElement.viewBox.baseVal.height;
+        const colors = {
+            'available': '#5f5d61',
+            'sold': '#ffffff', 
+            'reserved': '#cccccc'
+        };
         
-        const x = (bbox.x + bbox.width/2) * scaleX;
-        const y = (bbox.y + bbox.height/2) * scaleY;
-        
-        // Calculate font size based on booth size
-        const boothWidth = bbox.width * scaleX;
-        const boothHeight = bbox.height * scaleY;
-        const baseFontSize = Math.min(boothWidth / 8, boothHeight / 4);
-        const fontSize = Math.max(baseFontSize, 24);
-        
-        // Create label div
         const label = document.createElement('div');
-        label.className = 'booth-label';
         label.setAttribute('data-booth-id', boothId);
         label.style.position = 'absolute';
-        label.style.left = x + 'px';
-        label.style.top = y + 'px';
+        label.style.left = (rect.left - containerRect.left + rect.width/2) + 'px';
+        label.style.top = (rect.top - containerRect.top + rect.height/2) + 'px';
         label.style.transform = 'translate(-50%, -50%)';
         label.style.fontFamily = 'davis-sans, sans-serif';
         label.style.fontWeight = '700';
-        label.style.color = '#ffffff !important';
+        label.style.color = colors[status];
         label.style.textAlign = 'center';
-        label.style.fontSize = fontSize + 'px';
-        label.style.lineHeight = '1.1';
-        label.style.maxWidth = (boothWidth * 0.9) + 'px';
-        
-        // Split on space for two lines
-        const words = companyName.split(' ');
-        if (words.length > 1 && companyName.length > 12) {
-            label.innerHTML = `${words[0]}<br>${words.slice(1).join(' ')}`;
-        } else {
-            label.textContent = companyName;
-        }
+        label.style.fontSize = '18px';
+        label.style.pointerEvents = 'none';
+        label.textContent = text;
         
         container.appendChild(label);
     }
