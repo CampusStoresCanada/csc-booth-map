@@ -1077,5 +1077,35 @@ window.debugBoothData = () => {
    const soldBooths = Object.entries(boothData).filter(([id, info]) => info.status === 'sold');
    console.log('Sold booths:', soldBooths);
 };
+        window.debugReservedBooths = () => {
+    const reservedBooths = Object.entries(boothData).filter(([id, info]) => info.status === 'reserved');
+    console.log('Reserved booths in data:', reservedBooths);
+    
+    const svgElement = document.querySelector('#boothMapContainer svg');
+    
+    reservedBooths.forEach(([boothId, boothInfo]) => {
+        console.log(`\n--- Checking ${boothId} ---`);
+        
+        // Try to find the booth element
+        let boothElement = svgElement.querySelector(`#${boothId}`);
+        if (!boothElement) {
+            // Try alternative naming
+            const altId = boothId.includes('_') ? boothId : `_${boothId}`;
+            const altGroup = svgElement.querySelector(`#${altId}`);
+            if (altGroup) {
+                boothElement = altGroup.querySelector('rect');
+                console.log(`Found via group: ${altId}`);
+            }
+        }
+        
+        if (boothElement) {
+            console.log(`Element found: ${boothElement.id || 'no id'}`);
+            console.log(`Current fill: ${boothElement.style.fill || boothElement.getAttribute('fill')}`);
+            console.log(`Current classes: ${boothElement.classList.toString()}`);
+        } else {
+            console.log(`❌ Element NOT found for ${boothId}`);
+        }
+    });
+};
 </script>
 </body>
