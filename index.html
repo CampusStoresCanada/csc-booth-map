@@ -906,11 +906,11 @@ function updateBoothElement(boothRectElement, boothInfo, boothIdKey) {
             textElement.style.fill = "#fff";  
             const formatted = formatCompanyNameForBooth(boothInfo.companyName || "SOLD");
             if (formatted.twoLine) {
-                    textElement.innerHTML = `<tspan x="${textElement.getAttribute('x')}" dy="0">${formatted.twoLine.line1}</tspan><tspan x="${textElement.getAttribute('x')}" dy="1.2em">${formatted.twoLine.line2}</tspan>`;
+                textElement.textContent = `${formatted.twoLine.line1}\n${formatted.twoLine.line2}`;
             } else {
                 textElement.textContent = formatted.singleLine;
-            }   
-                textElement.style.fontSize = "32px";
+            }  
+                textElement.style.fontSize = "28px";
             }
         
     } else if (boothInfo.status === "reserved") {
