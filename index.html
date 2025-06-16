@@ -1035,7 +1035,7 @@ setTimeout(() => {
             }
         }
     }
-    function addBoothLabel(boothRect, companyName, boothId) {
+    javascriptfunction addBoothLabel(boothRect, companyName, boothId) {
         // Clear any existing label for this booth
         const existingLabel = document.querySelector(`[data-booth-id="${boothId}"]`);
         if (existingLabel) {
@@ -1048,7 +1048,7 @@ setTimeout(() => {
         // Get SVG coordinates instead of viewport coordinates
         const svgElement = document.querySelector('#boothMapContainer svg');
         const svgRect = svgElement.getBoundingClientRect();
-        const bbox = boothRect.getBBox(); // This gets SVG coordinates
+        const bbox = boothRect.getBBox();
         
         // Calculate position relative to the map container
         const scaleX = svgRect.width / svgElement.viewBox.baseVal.width;
@@ -1057,7 +1057,13 @@ setTimeout(() => {
         const x = (bbox.x + bbox.width/2) * scaleX;
         const y = (bbox.y + bbox.height/2) * scaleY;
         
-        // Rest of the function stays the same but use x and y for positioning
+        // Calculate font size based on booth size
+        const boothWidth = bbox.width * scaleX;
+        const boothHeight = bbox.height * scaleY;
+        const baseFontSize = Math.min(boothWidth / 8, boothHeight / 4);
+        const fontSize = Math.max(baseFontSize, 24);
+        
+        // Create label div
         const label = document.createElement('div');
         label.className = 'booth-label';
         label.setAttribute('data-booth-id', boothId);
@@ -1065,9 +1071,23 @@ setTimeout(() => {
         label.style.left = x + 'px';
         label.style.top = y + 'px';
         label.style.transform = 'translate(-50%, -50%)';
-        // ... rest of styling
+        label.style.fontFamily = 'davis-sans, sans-serif';
+        label.style.fontWeight = '700';
+        label.style.color = '#ffffff !important';
+        label.style.textAlign = 'center';
+        label.style.fontSize = fontSize + 'px';
+        label.style.lineHeight = '1.1';
+        label.style.maxWidth = (boothWidth * 0.9) + 'px';
+        
+        // Split on space for two lines
+        const words = companyName.split(' ');
+        if (words.length > 1 && companyName.length > 12) {
+            label.innerHTML = `${words[0]}<br>${words.slice(1).join(' ')}`;
+        } else {
+            label.textContent = companyName;
+        }
+        
+        container.appendChild(label);
     }
-    console.log(`Label for ${boothId}: company="${companyName}", color should be white`);
-    console.log('Computed color:', window.getComputedStyle(label).color);
 </script>
 </body>
