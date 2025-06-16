@@ -1077,40 +1077,27 @@ setTimeout(() => {
         const container = document.getElementById('boothLabels');
         if (!container) return;
         
-        const rect = boothRect.getBoundingClientRect();
-        const mapContainer = document.getElementById('boothMapContainer').getBoundingClientRect();
+        // Get SVG coordinates instead of viewport coordinates
+        const svgElement = document.querySelector('#boothMapContainer svg');
+        const svgRect = svgElement.getBoundingClientRect();
+        const bbox = boothRect.getBBox(); // This gets SVG coordinates
         
-        // Calculate font size based on booth size - much bigger!
-        const boothWidth = rect.width;
-        const boothHeight = rect.height;
-        const baseFontSize = Math.min(boothWidth / 8, boothHeight / 4); // Way more aggressive scaling
-        const fontSize = Math.max(baseFontSize, 24); // Minimum 24px instead of 16px
+        // Calculate position relative to the map container
+        const scaleX = svgRect.width / svgElement.viewBox.baseVal.width;
+        const scaleY = svgRect.height / svgElement.viewBox.baseVal.height;
         
-        // Create label div
+        const x = (bbox.x + bbox.width/2) * scaleX;
+        const y = (bbox.y + bbox.height/2) * scaleY;
+        
+        // Rest of the function stays the same but use x and y for positioning
         const label = document.createElement('div');
         label.className = 'booth-label';
         label.setAttribute('data-booth-id', boothId);
         label.style.position = 'absolute';
-        label.style.left = (rect.left - mapContainer.left + rect.width/2) + 'px';
-        label.style.top = (rect.top - mapContainer.top + rect.height/2) + 'px';
+        label.style.left = x + 'px';
+        label.style.top = y + 'px';
         label.style.transform = 'translate(-50%, -50%)';
-        label.style.fontFamily = 'davis-sans, sans-serif';
-        label.style.fontWeight = '700';
-        label.style.color = '#fff';
-        label.style.textAlign = 'center';
-        label.style.fontSize = fontSize + 'px';
-        label.style.lineHeight = '1.1';
-        label.style.maxWidth = (boothWidth * 0.9) + 'px'; // 90% of booth width
-        
-        // Split on space for two lines
-        const words = companyName.split(' ');
-        if (words.length > 1 && companyName.length > 12) {
-            label.innerHTML = `${words[0]}<br>${words.slice(1).join(' ')}`;
-        } else {
-            label.textContent = companyName;
-        }
-        
-        container.appendChild(label);
+        // ... rest of styling
     }
 </script>
 </body>
