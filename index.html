@@ -881,7 +881,7 @@ function updateBoothElement(boothRectElement, boothInfo, boothIdKey) {
     const styles = {
         available: { rectFill: "#fff", textFill: "#5f5d61", cursor: "pointer" },
         sold: { rectFill: "#991f22", textFill: "#fff", cursor: "default" },
-        reserved: { opacity: "0", cursor: "default" } // Just invisible
+        reserved: { rectFill: "#333333", textFill: "#cccccc", cursor: "not-allowed" }
     };
     
     const MAX_COMPANY_NAME_LENGTH = 12; 
@@ -937,15 +937,15 @@ function updateBoothElement(boothRectElement, boothInfo, boothIdKey) {
            textElement.setAttribute('dominant-baseline', 'middle');
        }
            } else if (boothInfo.status === "reserved") {
-           boothRectElement.style.opacity = "0";
-           boothRectElement.style.cursor = "default";
-           boothRectElement.classList.add('booth-reserved');
-           boothRectElement.classList.remove('booth-available', 'booth-sold');
-           
-           if (textElement) {
-               textElement.style.opacity = "0"; // Hide the text too
+                boothRectElement.style.fill = "#333333";
+                boothRectElement.style.cursor = "not-allowed";
+                boothRectElement.classList.add('booth-reserved');
+                boothRectElement.classList.remove('booth-available', 'booth-sold');
+            
+                if (textElement) {
+                    textElement.style.fill = "#cccccc"; // Light gray text so booth numbers are still visible
+                }
             }
-        }
 
    // Clone and replace element to reset event listeners
    const newBoothRectElement = boothRectElement.cloneNode(true);
