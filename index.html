@@ -29,7 +29,6 @@
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            position: relative;
         }
 
         #boothMapContainer svg {
@@ -76,7 +75,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        /* Status indicator - updated to be less prominent when we have the overlay */
+        /* Status indicator */
         .status-indicator {
             position: absolute;
             top: 25px;
@@ -85,7 +84,6 @@
             border-radius: 15px;
             font-size: 12px;
             font-weight: bold;
-            z-index: 50;
         }
 
         .status-loading {
@@ -102,88 +100,6 @@
             background-color: #e74c3c;
             color: white;
         }
-
-        /* Loading Overlay - borrowed from the wizard */
-        .loading-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.95);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            z-index: 1000;
-            border-radius: 8px;
-            transition: opacity 0.3s ease;
-        }
-
-        .loading-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .loading-title {
-            font-family: 'davis-sans', sans-serif;
-            font-weight: 700;
-            font-size: 28px;
-            color: #000000;
-            margin-bottom: 10px;
-        }
-
-        .loading-subtitle {
-            font-family: 'davis-sans', sans-serif;
-            font-weight: 400;
-            font-size: 14px;
-            color: #666666;
-            text-align: center;
-        }
-
-        .dots {
-            display: inline-block;
-        }
-
-        .dot {
-            display: inline-block;
-            animation: bounce 1.4s ease-in-out infinite;
-        }
-
-        .dot:nth-child(1) { animation-delay: 0s; }
-        .dot:nth-child(2) { animation-delay: 0.2s; }
-        .dot:nth-child(3) { animation-delay: 0.4s; }
-
-        @keyframes bounce {
-            0%, 60%, 100% { 
-                transform: translateY(0); 
-            }
-            30% { 
-                transform: translateY(-15px); 
-            }
-        }
-
-        /* Fade in animation for the map when loaded */
-        .map-content {
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
-
-        .map-content.loaded {
-            opacity: 1;
-        }
-
-        /* Mobile responsiveness for loading */
-        @media (max-width: 768px) {
-            .loading-title {
-                font-size: 24px;
-            }
-            
-            .loading-subtitle {
-                font-size: 12px;
-                padding: 0 20px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -191,304 +107,888 @@
     <h2 class="booth-map-heading">Conference Booth Map</h2>
     <div class="status-indicator" id="statusIndicator">Loading...</div>
     <div id="boothMapContainer">
-        <!-- Loading Overlay -->
-        <div class="loading-overlay" id="loadingOverlay">
-            <div class="loading-title">
-                Loading<span class="dots">
-                    <span class="dot">.</span>
-                    <span class="dot">.</span>
-                    <span class="dot">.</span>
-                </span>
-            </div>
-            <div class="loading-subtitle">
-                Fetching live booth availability from our database...
-            </div>
-        </div>
-
-        <!-- Map Content -->
-        <div class="map-content" id="mapContent">
-            <?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3564.63 2662.23"><g id="Backgrounds"><g id="Male_Washroom"><circle cx="312.5" cy="688.48" r="8.57" fill="none" stroke="#5f5d61" stroke-miterlimit="10" stroke-width="4"/><path d="M312.5,700.17h-10.49c-6.39,0-11.57,5.18-11.57,11.57v30.48c0,1.3,1.83,2.35,4.08,2.35s4.08-1.05,4.08-2.35v-27.49s1.9,0,1.9,0v74.67c0,1.54,2.47,2.79,5.51,2.79s5.51-1.25,5.51-2.79v-44.12s1.94,0,1.94,0v44.12c0,1.54,2.47,2.79,5.51,2.79s5.51-1.25,5.51-2.79v-74.67h1.91v27.49c0,1.3,1.83,2.35,4.08,2.35s4.08-1.05,4.08-2.35v-30.48c0-6.39-5.18-11.57-11.57-11.57h-10.49Z" fill="none" stroke="#5f5d61" stroke-miterlimit="10" stroke-width="4"/></g><g id="Female_Washroom"><circle cx="312.5" cy="373.14" r="8.76" fill="none" stroke="#5f5d61" stroke-miterlimit="10" stroke-width="4"/><path d="M305.13,384.6c-.89,0-1.78.14-2.62.41-1.09.35-2.46.98-3.77,2.13-2.06,1.81-3.28,3.91-3.57,4.83l-8.7,27.59c-.62,2.12.59,4.35,2.71,4.97,2.12.62,4.35-.59,4.97-2.71l7.08-24.04h2.08l-12.35,42.91h11.6v32.98c0,1.65,1.95,2.99,4.35,2.99s4.35-1.34,4.35-2.99v-33.13h2.46v33.13c0,1.65,1.95,2.99,4.35,2.99s4.35-1.34,4.35-2.99v-32.98h11.6l-12.35-42.91h2.08l7.08,24.04c.62,2.12,2.85,3.34,4.97,2.71,2.12-.62,3.34-2.85,2.71-4.97l-8.7-27.59c-.29-.92-1.51-3.03-3.57-4.83-1.31-1.15-2.68-1.78-3.77-2.13-.85-.27-1.73-.4-2.62-.41h-14.75Z" fill="none" stroke="#5f5d61" stroke-miterlimit="10" stroke-width="4"/></g><text id="Stairs_Label" transform="translate(200.95 1109.75)" fill="#5f5d61"  font-size="60.26" font-weight="800"><tspan x="0" y="0" letter-spacing="-.02em">S</tspan><tspan x="40.14" y="0" letter-spacing="-.06em">T</tspan><tspan x="75.15" y="0" letter-spacing="0em">AIRS</tspan></text><text id="BUFFET_Label" transform="translate(877.91 534.21) rotate(-90)" fill="#5f5d61"  font-size="40.27" font-weight="800"><tspan x="0" y="0">BUFFE</tspan><tspan x="131.73" y="0" letter-spacing="-.02em">T</tspan></text><g id="Doors"><path d="M926.07,1097.56c-25.91,0-48.01,16.59-56.27,39.7-8.25-23.11-30.36-39.7-56.27-39.7h-3.5v59.74h7v-52.62c27.45,1.81,49.24,24.72,49.24,52.62h7.07c0-27.9,21.78-50.81,49.24-52.62v52.62h7v-59.74h-3.5Z" fill="#5f5d61"/><path d="M618.48,1022.66c-17.84-18.79-45.09-23.4-67.53-13.47,11.08-21.9,7.89-49.35-9.95-68.14l-2.41-2.54-43.32,41.13,4.82,5.08,38.16-36.23c17.59,21.15,15.97,52.73-4.26,71.94l.05.05,4.77,5.03.05.05c20.24-19.21,51.85-19.19,72.06-.52l-38.16,36.23,4.82,5.08,43.32-41.13-2.41-2.54Z" fill="#5f5d61"/><path d="M1094.36,1097.56c-25.91,0-48.01,16.59-56.27,39.7-8.25-23.11-30.36-39.7-56.27-39.7h-3.5v59.74h7v-52.62c27.45,1.81,49.24,24.72,49.24,52.62h7.07c0-27.9,21.78-50.81,49.24-52.62v52.62h7v-59.74h-3.5Z" fill="#5f5d61"/><path d="M1734.34,1097.56c-25.91,0-48.01,16.59-56.27,39.7-8.25-23.11-30.36-39.7-56.27-39.7h-3.5v59.74h7v-52.62c27.45,1.81,49.24,24.72,49.24,52.62h7.07c0-27.9,21.78-50.81,49.24-52.62v52.62h7v-59.74h-3.5Z" fill="#5f5d61"/><path d="M1902.63,1097.56c-25.91,0-48.01,16.59-56.27,39.7-8.25-23.11-30.36-39.7-56.27-39.7h-3.5v59.74h7v-52.62c27.45,1.81,49.24,24.72,49.24,52.62h7.07c0-27.9,21.78-50.81,49.24-52.62v52.62h7v-59.74h-3.5Z" fill="#5f5d61"/><path d="M2697.57,1097.56c-25.91,0-48.01,16.59-56.27,39.7-8.25-23.11-30.36-39.7-56.27-39.7h-3.5v59.74h7v-52.62c27.45,1.81,49.24,24.72,49.24,52.62h7.07c0-27.9,21.78-50.81,49.24-52.62v52.62h7v-59.74h-3.5Z" fill="#5f5d61"/><path d="M2865.86,1097.56c-25.91,0-48.01,16.59-56.27,39.7-8.25-23.11-30.36-39.7-56.27-39.7h-3.5v59.74h7v-52.62c27.45,1.81,49.24,24.72,49.24,52.62h7.07c0-27.9,21.78-50.81,49.24-52.62v52.62h7v-59.74h-3.5Z" fill="#5f5d61"/><path d="M2711.81,911.65c25.91,0,48.01-16.59,56.27-39.7,8.25,23.11,30.36,39.7,56.27,39.7h3.5v-59.74h-7v52.62c-27.45-1.81-49.24-24.72-49.24-52.62h-7.07c0,27.9-21.78,50.81-49.24,52.62v-52.62h-7v59.74h3.5Z" fill="#5f5d61"/><path d="M605.39,1095.02l4.82,5.08c20.23-19.21,51.85-19.19,72.06-.52l-38.16,36.23,4.82,5.08,43.32-41.13-2.41-2.54c-22.68-23.89-60.56-24.87-84.45-2.19Z" fill="#5f5d61"/><path d="M624.61,607.5v-7c-27.9,0-50.81-21.78-52.62-49.24h52.62v-7h-59.74v3.5c0,32.94,26.8,59.74,59.74,59.74Z" fill="#5f5d61"/><path d="M469.12,951.98l-4.82-5.08c20.23-19.21,21.85-50.78,4.26-71.94l-38.16,36.23-4.82-5.08,43.32-41.13,2.41,2.54c22.68,23.89,21.69,61.77-2.19,84.45Z" fill="#5f5d61"/><path d="M624.61,692.73v-7c-27.9,0-50.81-21.78-52.62-49.24h52.62v-7h-59.74v3.5c0,32.94,26.8,59.74,59.74,59.74Z" fill="#5f5d61"/></g><path id="Area_Outline" d="M2936.5,626.28l-1.54-523.64h-239.75v523.05h-737.08v112.01h-35.83l.13,39.36h-760.1l-42.11-39.76-.78-445.41h66.62V0h-655.99v215.53H0v648.54l35.07,291.71h17.26v200.88h402.22v150.99c24.59,100.8,47.26,234.8,47.26,393.13s-22.67,292.33-47.26,393.13v368.34h2720.69v-1418.94h298.25v-210.82l91.15-.13v-406.07h-628.14ZM2713.21,643.69V120.63h203.8l1.49,505.7.05,17.95h58.53v207.28h-469.04v-207.87h205.17ZM18,233.53h511.86v59.44h77.14v314.53H18V233.53ZM18,625.5h589v86.59l-.17.18-45.13,45.3-28.5-28.68-17.69-17.8-5.25-5.28-7.45-.03-12.23-.05-74.19-.28v140.63H18v-220.57ZM455.11,1139.29h-.56v199.36H70.33v-200.88h-19.3l-32.84-273.17h398.01v31.55l4.93,5.21,206.04,217.51,19.24,20.43h-191.32ZM3157.24,1243.3v1400.94H472.54v-348.18c31.36-129.28,47.26-262.26,47.26-395.28s-15.9-266.01-47.26-395.28v-148.83h.05l.47-199.36h2684.17v86ZM3546.63,1014.37l-73.18.11-17.97.03v210.79h-280.25v-86.67H670.69l-30.48-32.17-205.83-218.53v-23.85h.18l-.16-140.56,17.41.07,50.93.2,54.41,54.74,4.54,4.57,3.44-3.45,59.87-60.1h0v-445.63h-76.95V18h619.99v255.9h-66.65l.03,18.03.78,445.41v7.74s5.64,5.31,5.64,5.31l42.11,39.76,5.2,4.91h785.31l-.06-18.06-.07-21.3h35.77v-112.01h524.91v214.87h483.04v-214.28h562.56v370.1Z" fill="#363639"/><rect id="Buffet_Table" x="782.75" y="209.25" width="165.57" height="493.22" fill="none" stroke="#d80a8c" stroke-miterlimit="10" stroke-width="5"/><rect id="Regsitration_Table" x="2171.4" y="609.33" width="134.37" height="360.95" transform="translate(1448.77 3028.39) rotate(-90)" fill="none" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><g id="Registration_Label"><path d="M2088.04,804.72v-29.83h10.74c7.44,0,12.09,3.94,12.09,10.22,0,3.26-1.75,6.25-4.97,8.08l6.01,8.39v3.14h-7.52l-6.29-9.43h-1.99v9.43h-8.08ZM2098.74,788.85c2.51,0,4.06-1.51,4.06-3.74,0-2.11-1.51-3.42-4.06-3.42h-2.78v7.16h2.78Z" fill="#5f5d61"/><path d="M2116.01,774.89h19.85v6.96h-11.77v4.42h10.22v6.29h-10.22v5.21h11.77v6.96h-19.85v-29.83Z" fill="#5f5d61"/><path d="M2138.77,789.85c0-9.39,5.97-15.67,15.32-15.67,6.84,0,11.1,3.1,11.85,7v3.1h-6.56c-.4-1.55-2.31-3.18-5.29-3.18-4.5,0-7.24,3.54-7.24,8.71s2.86,8.67,7.6,8.67c1.63,0,2.9-.24,4.06-.72v-3.78h-4.65v-6.13h12.05v13.17c-1.47,2.15-5.89,4.42-11.54,4.42-9.83,0-15.59-5.97-15.59-15.59Z" fill="#5f5d61"/><path d="M2170.79,774.89h8.08v29.83h-8.08v-29.83Z" fill="#5f5d61"/><path d="M2183.56,798.6v-3.14h6.52c.72,2.23,2.43,3.38,5.41,3.38,2.47,0,3.98-.96,3.98-2.75,0-1.47-1.15-2.43-3.86-2.82l-3.18-.44c-5.53-.8-8.91-3.82-8.91-8.99,0-6.21,4.61-9.67,11.74-9.67,5.97,0,10.46,2.51,11.18,6.88v3.1h-6.56c-.36-1.91-1.75-3.38-4.65-3.38-2.39,0-3.78.92-3.78,2.67,0,1.15.8,2.07,3.38,2.47l2.94.44c5.73.84,9.63,3.94,9.63,9.19,0,6.09-4.81,9.9-12.01,9.9s-10.58-2.98-11.81-6.84Z" fill="#5f5d61"/><path d="M2216.94,781.85h-7.88v-6.96h23.83v6.96h-7.88v22.87h-8.08v-22.87Z" fill="#5f5d61"/><path d="M2236.59,804.72v-29.83h10.74c7.44,0,12.09,3.94,12.09,10.22,0,3.26-1.75,6.25-4.97,8.08l6.01,8.39v3.14h-7.52l-6.29-9.43h-1.99v9.43h-8.08ZM2247.29,788.85c2.51,0,4.06-1.51,4.06-3.74,0-2.11-1.51-3.42-4.06-3.42h-2.78v7.16h2.78Z" fill="#5f5d61"/><path d="M2262.1,804.72v-2.78l9.47-27.05h8.95l9.43,26.65v3.18h-7.4l-1.67-5.25h-10.38l-1.71,5.25h-6.68ZM2275.74,782.85l-3.18,10.02h6.29l-3.1-10.02Z" fill="#5f5d61"/><path d="M2296.75,781.85h-7.88v-6.96h23.83v6.96h-7.88v22.87h-8.08v-22.87Z" fill="#5f5d61"/><path d="M2316.4,774.89h8.08v29.83h-8.08v-29.83Z" fill="#5f5d61"/><path d="M2328.77,789.69c0-9.31,5.93-15.51,14.8-15.51s14.8,6.21,14.8,15.51-5.93,15.75-14.8,15.75-14.8-6.32-14.8-15.75ZM2350.29,789.69c0-5.17-2.63-8.59-6.72-8.59s-6.72,3.42-6.72,8.59,2.58,8.83,6.72,8.83,6.72-3.5,6.72-8.83Z" fill="#5f5d61"/><path d="M2362.67,774.89h7.68l11.1,16.39v-16.39h7.68v29.83h-7.68l-11.1-16.07v16.07h-7.68v-29.83Z" fill="#5f5d61"/></g><text id="ELEVATORS_Label" transform="translate(2828.24 531.44) rotate(-90)" fill="#5f5d61"  font-size="42.61" font-weight="800"><tspan x="0" y="0">ELE</tspan><tspan x="77.51" y="0" letter-spacing="-.04em">V</tspan><tspan x="106.62" y="0" letter-spacing="-.06em">A</tspan><tspan x="134.83" y="0" letter-spacing="-.02em">T</tspan><tspan x="161.34" y="0">ORS</tspan></text><g id="Elevators"><path id="Elevator_8" d="M3044.77,158.06v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM3029.73,160.72l-42.93,38.15-42.93-38.15h85.87ZM3029.74,247.71h-85.88l42.94-38.14,42.94,38.14ZM2936.83,165.18l43.95,39.04-43.95,39.03v-78.08ZM3036.77,243.26l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/><path id="Elevator_6" d="M3044.77,278.93v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM3029.73,281.59l-42.93,38.15-42.93-38.15h85.87ZM3029.74,368.58h-85.88l42.94-38.14,42.94,38.14ZM2936.83,286.05l43.95,39.04-43.95,39.03v-78.08ZM3036.77,364.13l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/><path id="Elevator_2" d="M3044.77,522.33v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM3029.73,524.99l-42.93,38.15-42.93-38.15h85.87ZM3029.74,611.98h-85.88l42.94-38.14,42.94,38.14ZM2936.83,529.44l43.95,39.04-43.95,39.03v-78.08ZM3036.77,607.53l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/><path id="Elevator_4" d="M3044.77,400.63v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM3029.73,403.29l-42.93,38.15-42.93-38.15h85.87ZM3029.74,490.28h-85.88l42.94-38.14,42.94,38.14ZM2936.83,407.75l43.95,39.04-43.95,39.03v-78.08ZM3036.77,485.83l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/><path id="Elevator_5" d="M2703.17,259.84v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM2688.13,262.51l-42.93,38.15-42.93-38.15h85.87ZM2688.14,349.5h-85.88l42.94-38.14,42.94,38.14ZM2595.23,266.96l43.95,39.04-43.95,39.03v-78.08ZM2695.17,345.05l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/><path id="Elevator_7" d="M2703.17,127.03v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM2688.13,129.69l-42.93,38.15-42.93-38.15h85.87ZM2688.14,216.68h-85.88l42.94-38.14,42.94,38.14ZM2595.23,134.14l43.95,39.04-43.95,39.03v-78.08ZM2695.17,212.23l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/><path id="Elevator_3" d="M2703.17,392.66v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM2688.13,395.33l-42.93,38.15-42.93-38.15h85.87ZM2688.14,482.32h-85.88l42.94-38.14,42.94,38.14ZM2595.23,399.78l43.95,39.04-43.95,39.03v-78.08ZM2695.17,477.86l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/><path id="Elevator_1" d="M2703.17,525.48v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM2688.13,528.15l-42.93,38.15-42.93-38.15h85.87ZM2688.14,615.13h-85.88l42.94-38.14,42.94,38.14ZM2595.23,532.6l43.95,39.04-43.95,39.03v-78.08ZM2695.17,610.68l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/></g></g><g id="Booths"><g id="_613"><rect id="Booth_613" x="2983.53" y="2210.87" width="164.26" height="164.26" transform="translate(772.67 5358.66) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_613" transform="translate(3024.17 2308)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0" letter-spacing="-.02em">6</tspan><tspan x="30" y="0" letter-spacing="0em">13</tspan></text></g><g id="_612"><rect id="Booth_612" x="2708.31" y="2382.5" width="164.26" height="164.26" transform="translate(325.8 5255.07) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_612" transform="translate(2749.63 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0" letter-spacing="-.02em">6</tspan><tspan x="30" y="0" letter-spacing="0em">12</tspan></text></g><g id="_611"><rect id="Booth_611" x="2983.53" y="2046.61" width="164.26" height="164.26" transform="translate(936.93 5194.4) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_611" transform="translate(3028.81 2143.74)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0" letter-spacing="-.02em">6</tspan><tspan x="30" y="0" letter-spacing="0em">11</tspan></text></g><g id="_610"><rect id="Booth_610" x="2708.31" y="2218.24" width="164.26" height="164.26" transform="translate(490.07 5090.81) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_610" transform="translate(2747.72 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0" letter-spacing="-.02em">6</tspan><tspan x="30" y="0" letter-spacing="0em">10</tspan></text></g><g id="_609"><rect id="Booth_609" x="2983.53" y="1882.34" width="164.26" height="164.26" transform="translate(1101.19 5030.14) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_609" transform="translate(3017.83 1979.48)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">609</tspan></text></g><g id="_608"><rect id="Booth_608" x="2708.31" y="2053.98" width="164.26" height="164.26" transform="translate(654.33 4926.55) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_608" transform="translate(2741.89 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">608</tspan></text></g><g id="_607"><rect id="Booth_607" x="2983.53" y="1718.08" width="164.26" height="164.26" transform="translate(1265.45 4865.88) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_607" transform="translate(3020.51 1815.22)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">607</tspan></text></g><rect id="Booth_606" x="2708.31" y="1889.72" width="164.26" height="164.26" transform="translate(818.59 4762.28) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><g id="_605"><rect id="Booth_605" x="2983.53" y="1553.82" width="164.26" height="164.26" transform="translate(1429.71 4701.62) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_605" transform="translate(3018.32 1650.95)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">605</tspan></text></g><g id="_604"><rect id="Booth_604" x="2708.31" y="1725.46" width="164.26" height="164.26" transform="translate(982.85 4598.02) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_604" transform="translate(2741.7 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">604</tspan></text></g><g id="_602"><rect id="Booth_602" x="2708.31" y="1561.19" width="164.26" height="164.26" transform="translate(1147.11 4433.76) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_602" transform="translate(2743.26 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">602</tspan></text></g><g id="_601"><rect id="Booth_601" x="2901.4" y="1307.43" width="328.52" height="164.26" transform="translate(1676.11 4455.22) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_601" transform="translate(3080.67 1501.65) rotate(-90)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">H</tspan><tspan x="39.03" y="0" letter-spacing="-.02em">O</tspan><tspan x="77.91" y="0" letter-spacing="0em">TLINE</tspan></text></g><g id="_600"><rect id="booth_600" x="2708.31" y="1396.93" width="164.26" height="164.26" transform="translate(1311.37 4269.5) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_600" transform="translate(2741.36 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">600</tspan></text></g><g id="_513"><rect id="Booth_513" x="2544.04" y="2382.5" width="164.26" height="164.26" transform="translate(161.54 5090.81) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_513" transform="translate(2584.63 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">513</tspan></text></g><g id="_512"><rect id="Booth_512" x="2262.15" y="2382.5" width="164.26" height="164.26" transform="translate(-120.35 4808.92) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_512" transform="translate(2303.42 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">512</tspan></text></g><g id="_511"><rect id="Booth_511" x="2544.04" y="2218.24" width="164.26" height="164.26" transform="translate(325.8 4926.55) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_511" transform="translate(2589.27 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">511</tspan></text></g><g id="_510"><rect id="Booth_510" x="2262.15" y="2218.24" width="164.26" height="164.26" transform="translate(43.91 4644.65) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_510" transform="translate(2301.52 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">510</tspan></text></g><g id="_509"><rect id="Booth_509" x="2544.04" y="2053.98" width="164.26" height="164.26" transform="translate(490.07 4762.28) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_509" transform="translate(2578.8 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">509</tspan></text></g><g id="_508"><rect id="Booth_508" x="2262.15" y="2053.98" width="164.26" height="164.26" transform="translate(208.17 4480.39) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_508" transform="translate(2296.2 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">508</tspan></text></g><rect id="Booth_507" x="2544.04" y="1889.72" width="164.26" height="164.26" transform="translate(654.33 4598.02) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><rect id="Booth_506" x="2262.15" y="1889.72" width="164.26" height="164.26" transform="translate(372.44 4316.13) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><g id="_505"><rect id="Booth_505" x="2544.04" y="1725.46" width="164.26" height="164.26" transform="translate(818.59 4433.76) rotate(-90)" fill="none" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_505" transform="translate(2579.29 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">505</tspan></text></g><g id="_504"><rect id="Booth_504" x="2262.15" y="1725.46" width="164.26" height="164.26" transform="translate(536.7 4151.87) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_504" transform="translate(2296.01 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">504</tspan></text></g><g id="_503"><rect id="Booth_503" x="2544.04" y="1561.19" width="164.26" height="164.26" transform="translate(982.85 4269.5) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_503" transform="translate(2578.78 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">503</tspan></text></g><g id="_502"><rect id="Booth_502" x="2262.15" y="1561.19" width="164.26" height="164.26" transform="translate(700.96 3987.61) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_502" transform="translate(2297.57 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">502</tspan></text></g><g id="_501"><rect id="Booth_501" x="2544.04" y="1396.93" width="164.26" height="164.26" transform="translate(1147.11 4105.24) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_501" transform="translate(2555.2 1492.28)" fill="#5f5d61"  font-size="43" font-weight="800"><tspan x="0" y="0" letter-spacing="-.02em">L</tspan><tspan x="24.08" y="0" letter-spacing="0em">OGIN</tspan></text></g><g id="_500"><rect id="Booth_500" x="2262.15" y="1396.93" width="164.26" height="164.26" transform="translate(865.22 3823.35) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_500" transform="translate(2295.67 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">500</tspan></text></g><g id="_413"><rect id="Booth_413" x="2097.89" y="2382.5" width="164.26" height="164.26" transform="translate(-284.61 4644.65) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_413" transform="translate(2137.09 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">413</tspan></text></g><g id="_412"><rect id="Booth_412" x="1814.89" y="2382.5" width="164.26" height="164.26" transform="translate(-567.61 4361.65) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_412" transform="translate(1854.77 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">412</tspan></text></g><g id="_411"><rect id="Booth_411" x="2097.89" y="2218.24" width="164.26" height="164.26" transform="translate(-120.35 4480.39) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_411" transform="translate(2141.72 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">411</tspan></text></g><g id="_410"><rect id="Booth_410" x="1814.89" y="2218.24" width="164.26" height="164.26" transform="translate(-403.35 4197.39) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_410" transform="translate(1852.87 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">410</tspan></text></g><g id="_409"><rect id="Booth_409" x="2097.89" y="2053.98" width="164.26" height="164.26" transform="translate(43.91 4316.13) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_409" transform="translate(2131.26 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">409</tspan></text></g><g id="_408"><rect id="Booth_408" x="1814.89" y="2053.98" width="164.26" height="164.26" transform="translate(-239.09 4033.13) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_408" transform="translate(1847.55 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">408</tspan></text></g><rect id="Booth_407" x="2097.89" y="1889.72" width="164.26" height="164.26" transform="translate(208.17 4151.87) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><rect id="Booth_406" x="1814.89" y="1889.72" width="164.26" height="164.26" transform="translate(-74.83 3868.87) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><g id="_405"><rect id="Booth_405" x="2097.89" y="1725.46" width="164.26" height="164.26" transform="translate(372.44 3987.61) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_405" transform="translate(2131.75 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">405</tspan></text></g><g id="_404"><rect id="Booth_404" x="1814.89" y="1725.46" width="164.26" height="164.26" transform="translate(89.43 3704.61) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_404" transform="translate(1847.36 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">404</tspan></text></g><g id="_403"><rect id="Booth_403" x="2097.89" y="1561.19" width="164.26" height="164.26" transform="translate(536.7 3823.35) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_403" transform="translate(2131.23 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">403</tspan></text></g><g id="_402"><rect id="Booth_402" x="1814.89" y="1561.19" width="164.26" height="164.26" transform="translate(253.7 3540.34) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_402" transform="translate(1848.92 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">402</tspan></text></g><g id="_401"><rect id="Booth_401" x="2097.89" y="1396.93" width="164.26" height="164.26" transform="translate(700.96 3659.08) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_401" transform="translate(2135.87 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">401</tspan></text></g><g id="_400"><rect id="Booth_400" x="1814.89" y="1396.93" width="164.26" height="164.26" transform="translate(417.96 3376.08) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_400" transform="translate(1847.01 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">400</tspan></text></g><g id="_313"><rect id="Booth_313" x="1650.63" y="2382.5" width="164.26" height="164.26" transform="translate(-731.87 4197.39) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_313" transform="translate(1690.71 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">313</tspan></text></g><g id="_312"><rect id="Booth_312" x="1370.75" y="2382.5" width="164.26" height="164.26" transform="translate(-1011.75 3917.52) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_312" transform="translate(1411.51 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">312</tspan></text></g><g id="_311"><rect id="Booth_311" x="1650.63" y="2218.24" width="164.26" height="164.26" transform="translate(-567.61 4033.13) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_311" transform="translate(1695.34 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">311</tspan></text></g><g id="_310"><rect id="Booth_310" x="1370.75" y="2218.24" width="164.26" height="164.26" transform="translate(-847.49 3753.25) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_310" transform="translate(1409.61 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">310</tspan></text></g><g id="_309"><rect id="Booth_309" x="1650.63" y="2053.98" width="164.26" height="164.26" transform="translate(-403.35 3868.87) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_309" transform="translate(1684.88 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">309</tspan></text></g><g id="_308"><rect id="Booth_308" x="1370.75" y="2053.98" width="164.26" height="164.26" transform="translate(-683.23 3588.99) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_308" transform="translate(1404.29 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">308</tspan></text></g><rect id="Booth_307" x="1650.63" y="1889.72" width="164.26" height="164.26" transform="translate(-239.09 3704.61) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><rect id="Booth_306" x="1370.75" y="1889.72" width="164.26" height="164.26" transform="translate(-518.96 3424.73) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><g id="_305"><rect id="Booth_305" x="1650.63" y="1725.46" width="164.26" height="164.26" transform="translate(-74.83 3540.34) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_305" transform="translate(1685.36 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">305</tspan></text></g><g id="_304"><rect id="Booth_304" x="1370.75" y="1725.46" width="164.26" height="164.26" transform="translate(-354.7 3260.47) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_304" transform="translate(1404.1 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">304</tspan></text></g><g id="_303"><rect id="Booth_303" x="1650.63" y="1561.19" width="164.26" height="164.26" transform="translate(89.43 3376.08) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_303" transform="translate(1684.85 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">303</tspan></text></g><g id="_302"><rect id="Booth_302" x="1370.75" y="1561.19" width="164.26" height="164.26" transform="translate(-190.44 3096.21) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_302" transform="translate(1405.66 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">302</tspan></text></g><g id="_301"><rect id="Booth_301" x="1650.63" y="1396.93" width="164.26" height="164.26" transform="translate(253.7 3211.82) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_301" transform="translate(1689.49 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">301</tspan></text></g><g id="_300"><rect id="Booth_300" x="1370.75" y="1396.93" width="164.26" height="164.26" transform="translate(-26.18 2931.95) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_300" transform="translate(1403.76 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">300</tspan></text></g><g id="_213"><rect id="Booth_213" x="1206.49" y="2382.5" width="164.26" height="164.26" transform="translate(-1176.01 3753.25) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_213" transform="translate(1247.25 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">213</tspan></text></g><g id="_212"><rect id="Booth_212" x="926.34" y="2382.5" width="164.26" height="164.26" transform="translate(-1456.17 3473.1) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_212" transform="translate(967.78 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">212</tspan></text></g><g id="_211"><rect id="Booth_211" x="1206.49" y="2218.24" width="164.26" height="164.26" transform="translate(-1011.75 3588.99) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_211" transform="translate(1251.89 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">211</tspan></text></g><g id="_210"><rect id="Booth_210" x="926.34" y="2218.24" width="164.26" height="164.26" transform="translate(-1291.9 3308.84) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_210" transform="translate(965.88 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">210</tspan></text></g><g id="_209"><rect id="Booth_209" x="1206.49" y="2053.98" width="164.26" height="164.26" transform="translate(-847.49 3424.73) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_209" transform="translate(1241.42 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">209</tspan></text></g><g id="_208"><rect id="Booth_208" x="926.34" y="2053.98" width="164.26" height="164.26" transform="translate(-1127.64 3144.58) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_208" transform="translate(960.56 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">208</tspan></text></g><rect id="booth_207" x="1206.49" y="1889.72" width="164.26" height="164.26" transform="translate(-683.23 3260.47) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><rect id="Booth_206" x="926.34" y="1889.72" width="164.26" height="164.26" transform="translate(-963.38 2980.31) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><g id="_205"><rect id="Booth_205" x="1206.49" y="1725.46" width="164.26" height="164.26" transform="translate(-518.96 3096.21) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_205" transform="translate(1241.91 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">205</tspan></text></g><g id="_204"><rect id="Booth_204" x="926.34" y="1725.46" width="164.26" height="164.26" transform="translate(-799.12 2816.05) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_204" transform="translate(960.36 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">204</tspan></text></g><g id="_203"><rect id="Booth_203" x="1206.49" y="1561.19" width="164.26" height="164.26" transform="translate(-354.7 2931.95) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_203" transform="translate(1241.4 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">203</tspan></text></g><g id="_202"><rect id="Booth_202" x="926.34" y="1561.19" width="164.26" height="164.26" transform="translate(-634.86 2651.79) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_202" transform="translate(961.92 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">202</tspan></text></g><g id="_201"><rect id="Booth_201" x="1206.49" y="1396.93" width="164.26" height="164.26" transform="translate(-190.44 2767.68) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_201" transform="translate(1216.24 1485.21)" fill="#5f5d61"  font-size="20" font-weight="800"><tspan x="0" y="0">VI</tspan><tspan x="21.36" y="0" letter-spacing="-.06em">T</tspan><tspan x="32.98" y="0" letter-spacing="0em">A</tspan><tspan x="47.42" y="0" letter-spacing="-.01em">L</tspan><tspan x="58.84" y="0" letter-spacing="0em">SOU</tspan><tspan x="104.02" y="0" letter-spacing="0em">R</tspan><tspan x="117.92" y="0" letter-spacing="0em">CE</tspan></text></g><g id="_200"><rect id="Booth_200" x="926.34" y="1396.93" width="164.26" height="164.26" transform="translate(-470.6 2487.53) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_200" transform="translate(960.02 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">200</tspan></text></g><g id="_114"><rect id="Booth_114" x="479.51" y="2479.97" width="164.26" height="164.26" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_114" transform="translate(523.34 2577.1)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">114</tspan></text></g><g id="_113"><rect id="Booth_113" x="762.07" y="2382.5" width="164.26" height="164.26" transform="translate(-1620.43 3308.84) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_113" transform="translate(806.79 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">113</tspan></text></g><g id="_112"><rect id="Booth_112" x="479.51" y="2315.71" width="164.26" height="164.26" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_112" transform="translate(524.9 2412.84)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">112</tspan></text></g><g id="_111"><rect id="Booth_111" x="762.07" y="2218.24" width="164.26" height="164.26" transform="translate(-1456.17 3144.58) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_111" transform="translate(811.42 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">111</tspan></text></g><g id="_109"><rect id="Booth_109" x="762.07" y="2053.98" width="164.26" height="164.26" transform="translate(-1291.9 2980.31) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_109" transform="translate(800.96 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">109</tspan></text></g><rect id="Booth_107" x="762.07" y="1889.72" width="164.26" height="164.26" transform="translate(-1127.64 2816.05) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><g id="_105"><rect id="Booth_105" x="762.07" y="1725.46" width="164.26" height="164.26" transform="translate(-963.38 2651.79) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_105" transform="translate(801.44 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">105</tspan></text></g><g id="_103"><rect id="Booth_103" x="762.07" y="1561.19" width="164.26" height="164.26" transform="translate(-799.12 2487.53) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_103" transform="translate(800.93 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">103</tspan></text></g><g id="_101"><rect id="Booth_101" x="762.07" y="1396.93" width="164.26" height="164.26" transform="translate(-634.86 2323.27) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_101" transform="translate(805.57 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">101</tspan></text></g><g id="_100"><rect id="Booth_100" x="479.51" y="1184.53" width="164.26" height="328.52" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_100" transform="translate(576.64 1468.37) rotate(-90)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">SHARPER</tspan></text></g></g></svg>
-        </div>
+        <?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3564.63 2662.23"><g id="Backgrounds"><g id="Male_Washroom"><circle cx="312.5" cy="688.48" r="8.57" fill="none" stroke="#5f5d61" stroke-miterlimit="10" stroke-width="4"/><path d="M312.5,700.17h-10.49c-6.39,0-11.57,5.18-11.57,11.57v30.48c0,1.3,1.83,2.35,4.08,2.35s4.08-1.05,4.08-2.35v-27.49s1.9,0,1.9,0v74.67c0,1.54,2.47,2.79,5.51,2.79s5.51-1.25,5.51-2.79v-44.12s1.94,0,1.94,0v44.12c0,1.54,2.47,2.79,5.51,2.79s5.51-1.25,5.51-2.79v-74.67h1.91v27.49c0,1.3,1.83,2.35,4.08,2.35s4.08-1.05,4.08-2.35v-30.48c0-6.39-5.18-11.57-11.57-11.57h-10.49Z" fill="none" stroke="#5f5d61" stroke-miterlimit="10" stroke-width="4"/></g><g id="Female_Washroom"><circle cx="312.5" cy="373.14" r="8.76" fill="none" stroke="#5f5d61" stroke-miterlimit="10" stroke-width="4"/><path d="M305.13,384.6c-.89,0-1.78.14-2.62.41-1.09.35-2.46.98-3.77,2.13-2.06,1.81-3.28,3.91-3.57,4.83l-8.7,27.59c-.62,2.12.59,4.35,2.71,4.97,2.12.62,4.35-.59,4.97-2.71l7.08-24.04h2.08l-12.35,42.91h11.6v32.98c0,1.65,1.95,2.99,4.35,2.99s4.35-1.34,4.35-2.99v-33.13h2.46v33.13c0,1.65,1.95,2.99,4.35,2.99s4.35-1.34,4.35-2.99v-32.98h11.6l-12.35-42.91h2.08l7.08,24.04c.62,2.12,2.85,3.34,4.97,2.71,2.12-.62,3.34-2.85,2.71-4.97l-8.7-27.59c-.29-.92-1.51-3.03-3.57-4.83-1.31-1.15-2.68-1.78-3.77-2.13-.85-.27-1.73-.4-2.62-.41h-14.75Z" fill="none" stroke="#5f5d61" stroke-miterlimit="10" stroke-width="4"/></g><text id="Stairs_Label" transform="translate(200.95 1109.75)" fill="#5f5d61"  font-size="60.26" font-weight="800"><tspan x="0" y="0" letter-spacing="-.02em">S</tspan><tspan x="40.14" y="0" letter-spacing="-.06em">T</tspan><tspan x="75.15" y="0" letter-spacing="0em">AIRS</tspan></text><text id="BUFFET_Label" transform="translate(877.91 534.21) rotate(-90)" fill="#5f5d61"  font-size="40.27" font-weight="800"><tspan x="0" y="0">BUFFE</tspan><tspan x="131.73" y="0" letter-spacing="-.02em">T</tspan></text><g id="Doors"><path d="M926.07,1097.56c-25.91,0-48.01,16.59-56.27,39.7-8.25-23.11-30.36-39.7-56.27-39.7h-3.5v59.74h7v-52.62c27.45,1.81,49.24,24.72,49.24,52.62h7.07c0-27.9,21.78-50.81,49.24-52.62v52.62h7v-59.74h-3.5Z" fill="#5f5d61"/><path d="M618.48,1022.66c-17.84-18.79-45.09-23.4-67.53-13.47,11.08-21.9,7.89-49.35-9.95-68.14l-2.41-2.54-43.32,41.13,4.82,5.08,38.16-36.23c17.59,21.15,15.97,52.73-4.26,71.94l.05.05,4.77,5.03.05.05c20.24-19.21,51.85-19.19,72.06-.52l-38.16,36.23,4.82,5.08,43.32-41.13-2.41-2.54Z" fill="#5f5d61"/><path d="M1094.36,1097.56c-25.91,0-48.01,16.59-56.27,39.7-8.25-23.11-30.36-39.7-56.27-39.7h-3.5v59.74h7v-52.62c27.45,1.81,49.24,24.72,49.24,52.62h7.07c0-27.9,21.78-50.81,49.24-52.62v52.62h7v-59.74h-3.5Z" fill="#5f5d61"/><path d="M1734.34,1097.56c-25.91,0-48.01,16.59-56.27,39.7-8.25-23.11-30.36-39.7-56.27-39.7h-3.5v59.74h7v-52.62c27.45,1.81,49.24,24.72,49.24,52.62h7.07c0-27.9,21.78-50.81,49.24-52.62v52.62h7v-59.74h-3.5Z" fill="#5f5d61"/><path d="M1902.63,1097.56c-25.91,0-48.01,16.59-56.27,39.7-8.25-23.11-30.36-39.7-56.27-39.7h-3.5v59.74h7v-52.62c27.45,1.81,49.24,24.72,49.24,52.62h7.07c0-27.9,21.78-50.81,49.24-52.62v52.62h7v-59.74h-3.5Z" fill="#5f5d61"/><path d="M2697.57,1097.56c-25.91,0-48.01,16.59-56.27,39.7-8.25-23.11-30.36-39.7-56.27-39.7h-3.5v59.74h7v-52.62c27.45,1.81,49.24,24.72,49.24,52.62h7.07c0-27.9,21.78-50.81,49.24-52.62v52.62h7v-59.74h-3.5Z" fill="#5f5d61"/><path d="M2865.86,1097.56c-25.91,0-48.01,16.59-56.27,39.7-8.25-23.11-30.36-39.7-56.27-39.7h-3.5v59.74h7v-52.62c27.45,1.81,49.24,24.72,49.24,52.62h7.07c0-27.9,21.78-50.81,49.24-52.62v52.62h7v-59.74h-3.5Z" fill="#5f5d61"/><path d="M2711.81,911.65c25.91,0,48.01-16.59,56.27-39.7,8.25,23.11,30.36,39.7,56.27,39.7h3.5v-59.74h-7v52.62c-27.45-1.81-49.24-24.72-49.24-52.62h-7.07c0,27.9-21.78,50.81-49.24,52.62v-52.62h-7v59.74h3.5Z" fill="#5f5d61"/><path d="M605.39,1095.02l4.82,5.08c20.23-19.21,51.85-19.19,72.06-.52l-38.16,36.23,4.82,5.08,43.32-41.13-2.41-2.54c-22.68-23.89-60.56-24.87-84.45-2.19Z" fill="#5f5d61"/><path d="M624.61,607.5v-7c-27.9,0-50.81-21.78-52.62-49.24h52.62v-7h-59.74v3.5c0,32.94,26.8,59.74,59.74,59.74Z" fill="#5f5d61"/><path d="M469.12,951.98l-4.82-5.08c20.23-19.21,21.85-50.78,4.26-71.94l-38.16,36.23-4.82-5.08,43.32-41.13,2.41,2.54c22.68,23.89,21.69,61.77-2.19,84.45Z" fill="#5f5d61"/><path d="M624.61,692.73v-7c-27.9,0-50.81-21.78-52.62-49.24h52.62v-7h-59.74v3.5c0,32.94,26.8,59.74,59.74,59.74Z" fill="#5f5d61"/></g><path id="Area_Outline" d="M2936.5,626.28l-1.54-523.64h-239.75v523.05h-737.08v112.01h-35.83l.13,39.36h-760.1l-42.11-39.76-.78-445.41h66.62V0h-655.99v215.53H0v648.54l35.07,291.71h17.26v200.88h402.22v150.99c24.59,100.8,47.26,234.8,47.26,393.13s-22.67,292.33-47.26,393.13v368.34h2720.69v-1418.94h298.25v-210.82l91.15-.13v-406.07h-628.14ZM2713.21,643.69V120.63h203.8l1.49,505.7.05,17.95h58.53v207.28h-469.04v-207.87h205.17ZM18,233.53h511.86v59.44h77.14v314.53H18V233.53ZM18,625.5h589v86.59l-.17.18-45.13,45.3-28.5-28.68-17.69-17.8-5.25-5.28-7.45-.03-12.23-.05-74.19-.28v140.63H18v-220.57ZM455.11,1139.29h-.56v199.36H70.33v-200.88h-19.3l-32.84-273.17h398.01v31.55l4.93,5.21,206.04,217.51,19.24,20.43h-191.32ZM3157.24,1243.3v1400.94H472.54v-348.18c31.36-129.28,47.26-262.26,47.26-395.28s-15.9-266.01-47.26-395.28v-148.83h.05l.47-199.36h2684.17v86ZM3546.63,1014.37l-73.18.11-17.97.03v210.79h-280.25v-86.67H670.69l-30.48-32.17-205.83-218.53v-23.85h.18l-.16-140.56,17.41.07,50.93.2,54.41,54.74,4.54,4.57,3.44-3.45,59.87-60.1h0v-445.63h-76.95V18h619.99v255.9h-66.65l.03,18.03.78,445.41v7.74s5.64,5.31,5.64,5.31l42.11,39.76,5.2,4.91h785.31l-.06-18.06-.07-21.3h35.77v-112.01h524.91v214.87h483.04v-214.28h562.56v370.1Z" fill="#363639"/><rect id="Buffet_Table" x="782.75" y="209.25" width="165.57" height="493.22" fill="none" stroke="#d80a8c" stroke-miterlimit="10" stroke-width="5"/><rect id="Regsitration_Table" x="2171.4" y="609.33" width="134.37" height="360.95" transform="translate(1448.77 3028.39) rotate(-90)" fill="none" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><g id="Registration_Label"><path d="M2088.04,804.72v-29.83h10.74c7.44,0,12.09,3.94,12.09,10.22,0,3.26-1.75,6.25-4.97,8.08l6.01,8.39v3.14h-7.52l-6.29-9.43h-1.99v9.43h-8.08ZM2098.74,788.85c2.51,0,4.06-1.51,4.06-3.74,0-2.11-1.51-3.42-4.06-3.42h-2.78v7.16h2.78Z" fill="#5f5d61"/><path d="M2116.01,774.89h19.85v6.96h-11.77v4.42h10.22v6.29h-10.22v5.21h11.77v6.96h-19.85v-29.83Z" fill="#5f5d61"/><path d="M2138.77,789.85c0-9.39,5.97-15.67,15.32-15.67,6.84,0,11.1,3.1,11.85,7v3.1h-6.56c-.4-1.55-2.31-3.18-5.29-3.18-4.5,0-7.24,3.54-7.24,8.71s2.86,8.67,7.6,8.67c1.63,0,2.9-.24,4.06-.72v-3.78h-4.65v-6.13h12.05v13.17c-1.47,2.15-5.89,4.42-11.54,4.42-9.83,0-15.59-5.97-15.59-15.59Z" fill="#5f5d61"/><path d="M2170.79,774.89h8.08v29.83h-8.08v-29.83Z" fill="#5f5d61"/><path d="M2183.56,798.6v-3.14h6.52c.72,2.23,2.43,3.38,5.41,3.38,2.47,0,3.98-.96,3.98-2.75,0-1.47-1.15-2.43-3.86-2.82l-3.18-.44c-5.53-.8-8.91-3.82-8.91-8.99,0-6.21,4.61-9.67,11.74-9.67,5.97,0,10.46,2.51,11.18,6.88v3.1h-6.56c-.36-1.91-1.75-3.38-4.65-3.38-2.39,0-3.78.92-3.78,2.67,0,1.15.8,2.07,3.38,2.47l2.94.44c5.73.84,9.63,3.94,9.63,9.19,0,6.09-4.81,9.9-12.01,9.9s-10.58-2.98-11.81-6.84Z" fill="#5f5d61"/><path d="M2216.94,781.85h-7.88v-6.96h23.83v6.96h-7.88v22.87h-8.08v-22.87Z" fill="#5f5d61"/><path d="M2236.59,804.72v-29.83h10.74c7.44,0,12.09,3.94,12.09,10.22,0,3.26-1.75,6.25-4.97,8.08l6.01,8.39v3.14h-7.52l-6.29-9.43h-1.99v9.43h-8.08ZM2247.29,788.85c2.51,0,4.06-1.51,4.06-3.74,0-2.11-1.51-3.42-4.06-3.42h-2.78v7.16h2.78Z" fill="#5f5d61"/><path d="M2262.1,804.72v-2.78l9.47-27.05h8.95l9.43,26.65v3.18h-7.4l-1.67-5.25h-10.38l-1.71,5.25h-6.68ZM2275.74,782.85l-3.18,10.02h6.29l-3.1-10.02Z" fill="#5f5d61"/><path d="M2296.75,781.85h-7.88v-6.96h23.83v6.96h-7.88v22.87h-8.08v-22.87Z" fill="#5f5d61"/><path d="M2316.4,774.89h8.08v29.83h-8.08v-29.83Z" fill="#5f5d61"/><path d="M2328.77,789.69c0-9.31,5.93-15.51,14.8-15.51s14.8,6.21,14.8,15.51-5.93,15.75-14.8,15.75-14.8-6.32-14.8-15.75ZM2350.29,789.69c0-5.17-2.63-8.59-6.72-8.59s-6.72,3.42-6.72,8.59,2.58,8.83,6.72,8.83,6.72-3.5,6.72-8.83Z" fill="#5f5d61"/><path d="M2362.67,774.89h7.68l11.1,16.39v-16.39h7.68v29.83h-7.68l-11.1-16.07v16.07h-7.68v-29.83Z" fill="#5f5d61"/></g><text id="ELEVATORS_Label" transform="translate(2828.24 531.44) rotate(-90)" fill="#5f5d61"  font-size="42.61" font-weight="800"><tspan x="0" y="0">ELE</tspan><tspan x="77.51" y="0" letter-spacing="-.04em">V</tspan><tspan x="106.62" y="0" letter-spacing="-.06em">A</tspan><tspan x="134.83" y="0" letter-spacing="-.02em">T</tspan><tspan x="161.34" y="0">ORS</tspan></text><g id="Elevators"><path id="Elevator_8" d="M3044.77,158.06v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM3029.73,160.72l-42.93,38.15-42.93-38.15h85.87ZM3029.74,247.71h-85.88l42.94-38.14,42.94,38.14ZM2936.83,165.18l43.95,39.04-43.95,39.03v-78.08ZM3036.77,243.26l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/><path id="Elevator_6" d="M3044.77,278.93v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM3029.73,281.59l-42.93,38.15-42.93-38.15h85.87ZM3029.74,368.58h-85.88l42.94-38.14,42.94,38.14ZM2936.83,286.05l43.95,39.04-43.95,39.03v-78.08ZM3036.77,364.13l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/><path id="Elevator_2" d="M3044.77,522.33v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM3029.73,524.99l-42.93,38.15-42.93-38.15h85.87ZM3029.74,611.98h-85.88l42.94-38.14,42.94,38.14ZM2936.83,529.44l43.95,39.04-43.95,39.03v-78.08ZM3036.77,607.53l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/><path id="Elevator_4" d="M3044.77,400.63v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM3029.73,403.29l-42.93,38.15-42.93-38.15h85.87ZM3029.74,490.28h-85.88l42.94-38.14,42.94,38.14ZM2936.83,407.75l43.95,39.04-43.95,39.03v-78.08ZM3036.77,485.83l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/><path id="Elevator_5" d="M2703.17,259.84v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM2688.13,262.51l-42.93,38.15-42.93-38.15h85.87ZM2688.14,349.5h-85.88l42.94-38.14,42.94,38.14ZM2595.23,266.96l43.95,39.04-43.95,39.03v-78.08ZM2695.17,345.05l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/><path id="Elevator_7" d="M2703.17,127.03v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM2688.13,129.69l-42.93,38.15-42.93-38.15h85.87ZM2688.14,216.68h-85.88l42.94-38.14,42.94,38.14ZM2595.23,134.14l43.95,39.04-43.95,39.03v-78.08ZM2695.17,212.23l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/><path id="Elevator_3" d="M2703.17,392.66v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM2688.13,395.33l-42.93,38.15-42.93-38.15h85.87ZM2688.14,482.32h-85.88l42.94-38.14,42.94,38.14ZM2595.23,399.78l43.95,39.04-43.95,39.03v-78.08ZM2695.17,477.86l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/><path id="Elevator_1" d="M2703.17,525.48v-5.34h-6.03s-103.87,0-103.87,0h0s-6.03,0-6.03,0v5.35h0v92.29h0v5.35h0s115.94,0,115.94,0h0s0,0,0,0v-5.34h0v-92.31h0ZM2688.13,528.15l-42.93,38.15-42.93-38.15h85.87ZM2688.14,615.13h-85.88l42.94-38.14,42.94,38.14ZM2595.23,532.6l43.95,39.04-43.95,39.03v-78.08ZM2695.17,610.68l-43.95-39.04,43.95-39.05v78.09Z" fill="#363639"/></g></g><g id="Booths"><g id="_613"><rect id="Booth_613" x="2983.53" y="2210.87" width="164.26" height="164.26" transform="translate(772.67 5358.66) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_613" transform="translate(3024.17 2308)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0" letter-spacing="-.02em">6</tspan><tspan x="30" y="0" letter-spacing="0em">13</tspan></text></g><g id="_612"><rect id="Booth_612" x="2708.31" y="2382.5" width="164.26" height="164.26" transform="translate(325.8 5255.07) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_612" transform="translate(2749.63 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0" letter-spacing="-.02em">6</tspan><tspan x="30" y="0" letter-spacing="0em">12</tspan></text></g><g id="_611"><rect id="Booth_611" x="2983.53" y="2046.61" width="164.26" height="164.26" transform="translate(936.93 5194.4) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_611" transform="translate(3028.81 2143.74)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0" letter-spacing="-.02em">6</tspan><tspan x="30" y="0" letter-spacing="0em">11</tspan></text></g><g id="_610"><rect id="Booth_610" x="2708.31" y="2218.24" width="164.26" height="164.26" transform="translate(490.07 5090.81) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_610" transform="translate(2747.72 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0" letter-spacing="-.02em">6</tspan><tspan x="30" y="0" letter-spacing="0em">10</tspan></text></g><g id="_609"><rect id="Booth_609" x="2983.53" y="1882.34" width="164.26" height="164.26" transform="translate(1101.19 5030.14) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_609" transform="translate(3017.83 1979.48)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">609</tspan></text></g><g id="_608"><rect id="Booth_608" x="2708.31" y="2053.98" width="164.26" height="164.26" transform="translate(654.33 4926.55) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_608" transform="translate(2741.89 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">608</tspan></text></g><g id="_607"><rect id="Booth_607" x="2983.53" y="1718.08" width="164.26" height="164.26" transform="translate(1265.45 4865.88) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_607" transform="translate(3020.51 1815.22)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">607</tspan></text></g><rect id="Booth_606" x="2708.31" y="1889.72" width="164.26" height="164.26" transform="translate(818.59 4762.28) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><g id="_605"><rect id="Booth_605" x="2983.53" y="1553.82" width="164.26" height="164.26" transform="translate(1429.71 4701.62) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_605" transform="translate(3018.32 1650.95)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">605</tspan></text></g><g id="_604"><rect id="Booth_604" x="2708.31" y="1725.46" width="164.26" height="164.26" transform="translate(982.85 4598.02) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_604" transform="translate(2741.7 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">604</tspan></text></g><g id="_602"><rect id="Booth_602" x="2708.31" y="1561.19" width="164.26" height="164.26" transform="translate(1147.11 4433.76) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_602" transform="translate(2743.26 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">602</tspan></text></g><g id="_601"><rect id="Booth_601" x="2901.4" y="1307.43" width="328.52" height="164.26" transform="translate(1676.11 4455.22) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_601" transform="translate(3080.67 1501.65) rotate(-90)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">H</tspan><tspan x="39.03" y="0" letter-spacing="-.02em">O</tspan><tspan x="77.91" y="0" letter-spacing="0em">TLINE</tspan></text></g><g id="_600"><rect id="booth_600" x="2708.31" y="1396.93" width="164.26" height="164.26" transform="translate(1311.37 4269.5) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_600" transform="translate(2741.36 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">600</tspan></text></g><g id="_513"><rect id="Booth_513" x="2544.04" y="2382.5" width="164.26" height="164.26" transform="translate(161.54 5090.81) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_513" transform="translate(2584.63 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">513</tspan></text></g><g id="_512"><rect id="Booth_512" x="2262.15" y="2382.5" width="164.26" height="164.26" transform="translate(-120.35 4808.92) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_512" transform="translate(2303.42 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">512</tspan></text></g><g id="_511"><rect id="Booth_511" x="2544.04" y="2218.24" width="164.26" height="164.26" transform="translate(325.8 4926.55) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_511" transform="translate(2589.27 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">511</tspan></text></g><g id="_510"><rect id="Booth_510" x="2262.15" y="2218.24" width="164.26" height="164.26" transform="translate(43.91 4644.65) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_510" transform="translate(2301.52 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">510</tspan></text></g><g id="_509"><rect id="Booth_509" x="2544.04" y="2053.98" width="164.26" height="164.26" transform="translate(490.07 4762.28) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_509" transform="translate(2578.8 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">509</tspan></text></g><g id="_508"><rect id="Booth_508" x="2262.15" y="2053.98" width="164.26" height="164.26" transform="translate(208.17 4480.39) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_508" transform="translate(2296.2 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">508</tspan></text></g><rect id="Booth_507" x="2544.04" y="1889.72" width="164.26" height="164.26" transform="translate(654.33 4598.02) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><rect id="Booth_506" x="2262.15" y="1889.72" width="164.26" height="164.26" transform="translate(372.44 4316.13) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><g id="_505"><rect id="Booth_505" x="2544.04" y="1725.46" width="164.26" height="164.26" transform="translate(818.59 4433.76) rotate(-90)" fill="none" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_505" transform="translate(2579.29 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">505</tspan></text></g><g id="_504"><rect id="Booth_504" x="2262.15" y="1725.46" width="164.26" height="164.26" transform="translate(536.7 4151.87) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_504" transform="translate(2296.01 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">504</tspan></text></g><g id="_503"><rect id="Booth_503" x="2544.04" y="1561.19" width="164.26" height="164.26" transform="translate(982.85 4269.5) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_503" transform="translate(2578.78 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">503</tspan></text></g><g id="_502"><rect id="Booth_502" x="2262.15" y="1561.19" width="164.26" height="164.26" transform="translate(700.96 3987.61) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_502" transform="translate(2297.57 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">502</tspan></text></g><g id="_501"><rect id="Booth_501" x="2544.04" y="1396.93" width="164.26" height="164.26" transform="translate(1147.11 4105.24) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_501" transform="translate(2555.2 1492.28)" fill="#5f5d61"  font-size="43" font-weight="800"><tspan x="0" y="0" letter-spacing="-.02em">L</tspan><tspan x="24.08" y="0" letter-spacing="0em">OGIN</tspan></text></g><g id="_500"><rect id="Booth_500" x="2262.15" y="1396.93" width="164.26" height="164.26" transform="translate(865.22 3823.35) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_500" transform="translate(2295.67 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">500</tspan></text></g><g id="_413"><rect id="Booth_413" x="2097.89" y="2382.5" width="164.26" height="164.26" transform="translate(-284.61 4644.65) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_413" transform="translate(2137.09 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">413</tspan></text></g><g id="_412"><rect id="Booth_412" x="1814.89" y="2382.5" width="164.26" height="164.26" transform="translate(-567.61 4361.65) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_412" transform="translate(1854.77 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">412</tspan></text></g><g id="_411"><rect id="Booth_411" x="2097.89" y="2218.24" width="164.26" height="164.26" transform="translate(-120.35 4480.39) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_411" transform="translate(2141.72 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">411</tspan></text></g><g id="_410"><rect id="Booth_410" x="1814.89" y="2218.24" width="164.26" height="164.26" transform="translate(-403.35 4197.39) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_410" transform="translate(1852.87 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">410</tspan></text></g><g id="_409"><rect id="Booth_409" x="2097.89" y="2053.98" width="164.26" height="164.26" transform="translate(43.91 4316.13) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_409" transform="translate(2131.26 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">409</tspan></text></g><g id="_408"><rect id="Booth_408" x="1814.89" y="2053.98" width="164.26" height="164.26" transform="translate(-239.09 4033.13) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_408" transform="translate(1847.55 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">408</tspan></text></g><rect id="Booth_407" x="2097.89" y="1889.72" width="164.26" height="164.26" transform="translate(208.17 4151.87) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><rect id="Booth_406" x="1814.89" y="1889.72" width="164.26" height="164.26" transform="translate(-74.83 3868.87) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><g id="_405"><rect id="Booth_405" x="2097.89" y="1725.46" width="164.26" height="164.26" transform="translate(372.44 3987.61) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_405" transform="translate(2131.75 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">405</tspan></text></g><g id="_404"><rect id="Booth_404" x="1814.89" y="1725.46" width="164.26" height="164.26" transform="translate(89.43 3704.61) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_404" transform="translate(1847.36 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">404</tspan></text></g><g id="_403"><rect id="Booth_403" x="2097.89" y="1561.19" width="164.26" height="164.26" transform="translate(536.7 3823.35) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_403" transform="translate(2131.23 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">403</tspan></text></g><g id="_402"><rect id="Booth_402" x="1814.89" y="1561.19" width="164.26" height="164.26" transform="translate(253.7 3540.34) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_402" transform="translate(1848.92 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">402</tspan></text></g><g id="_401"><rect id="Booth_401" x="2097.89" y="1396.93" width="164.26" height="164.26" transform="translate(700.96 3659.08) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_401" transform="translate(2135.87 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">401</tspan></text></g><g id="_400"><rect id="Booth_400" x="1814.89" y="1396.93" width="164.26" height="164.26" transform="translate(417.96 3376.08) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_400" transform="translate(1847.01 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">400</tspan></text></g><g id="_313"><rect id="Booth_313" x="1650.63" y="2382.5" width="164.26" height="164.26" transform="translate(-731.87 4197.39) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_313" transform="translate(1690.71 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">313</tspan></text></g><g id="_312"><rect id="Booth_312" x="1370.75" y="2382.5" width="164.26" height="164.26" transform="translate(-1011.75 3917.52) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_312" transform="translate(1411.51 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">312</tspan></text></g><g id="_311"><rect id="Booth_311" x="1650.63" y="2218.24" width="164.26" height="164.26" transform="translate(-567.61 4033.13) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_311" transform="translate(1695.34 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">311</tspan></text></g><g id="_310"><rect id="Booth_310" x="1370.75" y="2218.24" width="164.26" height="164.26" transform="translate(-847.49 3753.25) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_310" transform="translate(1409.61 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">310</tspan></text></g><g id="_309"><rect id="Booth_309" x="1650.63" y="2053.98" width="164.26" height="164.26" transform="translate(-403.35 3868.87) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_309" transform="translate(1684.88 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">309</tspan></text></g><g id="_308"><rect id="Booth_308" x="1370.75" y="2053.98" width="164.26" height="164.26" transform="translate(-683.23 3588.99) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_308" transform="translate(1404.29 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">308</tspan></text></g><rect id="Booth_307" x="1650.63" y="1889.72" width="164.26" height="164.26" transform="translate(-239.09 3704.61) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><rect id="Booth_306" x="1370.75" y="1889.72" width="164.26" height="164.26" transform="translate(-518.96 3424.73) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><g id="_305"><rect id="Booth_305" x="1650.63" y="1725.46" width="164.26" height="164.26" transform="translate(-74.83 3540.34) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_305" transform="translate(1685.36 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">305</tspan></text></g><g id="_304"><rect id="Booth_304" x="1370.75" y="1725.46" width="164.26" height="164.26" transform="translate(-354.7 3260.47) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_304" transform="translate(1404.1 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">304</tspan></text></g><g id="_303"><rect id="Booth_303" x="1650.63" y="1561.19" width="164.26" height="164.26" transform="translate(89.43 3376.08) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_303" transform="translate(1684.85 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">303</tspan></text></g><g id="_302"><rect id="Booth_302" x="1370.75" y="1561.19" width="164.26" height="164.26" transform="translate(-190.44 3096.21) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_302" transform="translate(1405.66 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">302</tspan></text></g><g id="_301"><rect id="Booth_301" x="1650.63" y="1396.93" width="164.26" height="164.26" transform="translate(253.7 3211.82) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_301" transform="translate(1689.49 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">301</tspan></text></g><g id="_300"><rect id="Booth_300" x="1370.75" y="1396.93" width="164.26" height="164.26" transform="translate(-26.18 2931.95) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_300" transform="translate(1403.76 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">300</tspan></text></g><g id="_213"><rect id="Booth_213" x="1206.49" y="2382.5" width="164.26" height="164.26" transform="translate(-1176.01 3753.25) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_213" transform="translate(1247.25 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">213</tspan></text></g><g id="_212"><rect id="Booth_212" x="926.34" y="2382.5" width="164.26" height="164.26" transform="translate(-1456.17 3473.1) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_212" transform="translate(967.78 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">212</tspan></text></g><g id="_211"><rect id="Booth_211" x="1206.49" y="2218.24" width="164.26" height="164.26" transform="translate(-1011.75 3588.99) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_211" transform="translate(1251.89 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">211</tspan></text></g><g id="_210"><rect id="Booth_210" x="926.34" y="2218.24" width="164.26" height="164.26" transform="translate(-1291.9 3308.84) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_210" transform="translate(965.88 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">210</tspan></text></g><g id="_209"><rect id="Booth_209" x="1206.49" y="2053.98" width="164.26" height="164.26" transform="translate(-847.49 3424.73) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_209" transform="translate(1241.42 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">209</tspan></text></g><g id="_208"><rect id="Booth_208" x="926.34" y="2053.98" width="164.26" height="164.26" transform="translate(-1127.64 3144.58) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_208" transform="translate(960.56 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">208</tspan></text></g><rect id="booth_207" x="1206.49" y="1889.72" width="164.26" height="164.26" transform="translate(-683.23 3260.47) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><rect id="Booth_206" x="926.34" y="1889.72" width="164.26" height="164.26" transform="translate(-963.38 2980.31) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><g id="_205"><rect id="Booth_205" x="1206.49" y="1725.46" width="164.26" height="164.26" transform="translate(-518.96 3096.21) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_205" transform="translate(1241.91 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">205</tspan></text></g><g id="_204"><rect id="Booth_204" x="926.34" y="1725.46" width="164.26" height="164.26" transform="translate(-799.12 2816.05) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_204" transform="translate(960.36 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">204</tspan></text></g><g id="_203"><rect id="Booth_203" x="1206.49" y="1561.19" width="164.26" height="164.26" transform="translate(-354.7 2931.95) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_203" transform="translate(1241.4 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">203</tspan></text></g><g id="_202"><rect id="Booth_202" x="926.34" y="1561.19" width="164.26" height="164.26" transform="translate(-634.86 2651.79) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_202" transform="translate(961.92 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">202</tspan></text></g><g id="_201"><rect id="Booth_201" x="1206.49" y="1396.93" width="164.26" height="164.26" transform="translate(-190.44 2767.68) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_201" transform="translate(1216.24 1485.21)" fill="#5f5d61"  font-size="20" font-weight="800"><tspan x="0" y="0">VI</tspan><tspan x="21.36" y="0" letter-spacing="-.06em">T</tspan><tspan x="32.98" y="0" letter-spacing="0em">A</tspan><tspan x="47.42" y="0" letter-spacing="-.01em">L</tspan><tspan x="58.84" y="0" letter-spacing="0em">SOU</tspan><tspan x="104.02" y="0" letter-spacing="0em">R</tspan><tspan x="117.92" y="0" letter-spacing="0em">CE</tspan></text></g><g id="_200"><rect id="Booth_200" x="926.34" y="1396.93" width="164.26" height="164.26" transform="translate(-470.6 2487.53) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_200" transform="translate(960.02 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">200</tspan></text></g><g id="_114"><rect id="Booth_114" x="479.51" y="2479.97" width="164.26" height="164.26" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_114" transform="translate(523.34 2577.1)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">114</tspan></text></g><g id="_113"><rect id="Booth_113" x="762.07" y="2382.5" width="164.26" height="164.26" transform="translate(-1620.43 3308.84) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_113" transform="translate(806.79 2479.64)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">113</tspan></text></g><g id="_112"><rect id="Booth_112" x="479.51" y="2315.71" width="164.26" height="164.26" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_112" transform="translate(524.9 2412.84)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">112</tspan></text></g><g id="_111"><rect id="Booth_111" x="762.07" y="2218.24" width="164.26" height="164.26" transform="translate(-1456.17 3144.58) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_111" transform="translate(811.42 2315.37)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">111</tspan></text></g><g id="_109"><rect id="Booth_109" x="762.07" y="2053.98" width="164.26" height="164.26" transform="translate(-1291.9 2980.31) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_109" transform="translate(800.96 2151.11)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">109</tspan></text></g><rect id="Booth_107" x="762.07" y="1889.72" width="164.26" height="164.26" transform="translate(-1127.64 2816.05) rotate(-90)" fill="#5f5d61" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><g id="_105"><rect id="Booth_105" x="762.07" y="1725.46" width="164.26" height="164.26" transform="translate(-963.38 2651.79) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_105" transform="translate(801.44 1822.59)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">105</tspan></text></g><g id="_103"><rect id="Booth_103" x="762.07" y="1561.19" width="164.26" height="164.26" transform="translate(-799.12 2487.53) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_103" transform="translate(800.93 1658.33)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">103</tspan></text></g><g id="_101"><rect id="Booth_101" x="762.07" y="1396.93" width="164.26" height="164.26" transform="translate(-634.86 2323.27) rotate(-90)" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_101" transform="translate(805.57 1494.06)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">101</tspan></text></g><g id="_100"><rect id="Booth_100" x="479.51" y="1184.53" width="164.26" height="328.52" fill="#fff" stroke="#363639" stroke-miterlimit="10" stroke-width="5"/><text id="Text_Booth_100" transform="translate(576.64 1468.37) rotate(-90)" fill="#5f5d61"  font-size="48.79" font-weight="800"><tspan x="0" y="0">SHARPER</tspan></text></g></g></svg>
     </div>
 
     <!-- Optional: A div for a tooltip -->
     <div id="boothTooltip" class="booth-tooltip"></div>
-    
     <script>
-        // Configuration
-        const NOTION_CONFIG = {
-            token: 'secret_TQQbLQPEXIjZpTPmNoJ0NXS0FK872afq2QN7xVW9SQy',
-            databaseId: '209a69bf0cfd80018854e7070284f3c5',
-            refreshInterval: 30000 // 30 seconds
-        };
+// Configuration
+const NOTION_CONFIG = {
+    token: 'secret_TQQbLQPEXIjZpTPmNoJ0NXS0FK872afq2QN7xVW9SQy',
+    databaseId: '209a69bf0cfd80018854e7070284f3c5',
+    refreshInterval: 30000 // 30 seconds
+};
 
-        // Complete booth data with ALL booths as fallback
-        let boothData = {
-            "Booth_100": {
-                "status": "sold",
-                "companyName": "Sharper",
-                "purchaseUrl": "https://www.campusstores.events/conference-26/booth-100",
-                "textElementId": "Text_Booth_100",
-                "originalBoothText": "100"
-            },
-            "Booth_101": {
-                "status": "available",
-                "companyName": "",
-                "purchaseUrl": "https://www.campusstores.events/conference-26/booth-101",
-                "textElementId": "Text_Booth_101",
-                "originalBoothText": "101"
-            },
-            "Booth_103": {
-                "status": "available",
-                "companyName": "",
-                "purchaseUrl": "https://www.campusstores.events/conference-26/booth-103",
-                "textElementId": "Text_Booth_103",
-                "originalBoothText": "103"
-            },
-            // ... (keeping booth data structure the same)
-        };
+// Complete booth data with ALL booths as fallback
+let boothData = {
+    "Booth_100": {
+        "status": "sold",
+        "companyName": "Sharper",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-100",
+        "textElementId": "Text_Booth_100",
+        "originalBoothText": "100"
+    },
+    "Booth_101": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-101",
+        "textElementId": "Text_Booth_101",
+        "originalBoothText": "101"
+    },
+    "Booth_103": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-103",
+        "textElementId": "Text_Booth_103",
+        "originalBoothText": "103"
+    },
+    "Booth_105": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-105",
+        "textElementId": "Text_Booth_105",
+        "originalBoothText": "105"
+    },
+    "Booth_107": { 
+        "status": "reserved",
+        "companyName": "UNAVAILABLE",
+        "purchaseUrl": "",
+        "textElementId": null, 
+        "originalBoothText": "107",
+        "showTooltip": false
+    },
+    "Booth_109": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-109",
+        "textElementId": "Text_Booth_109",
+        "originalBoothText": "109"
+    },
+    "Booth_111": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-111",
+        "textElementId": "Text_Booth_111",
+        "originalBoothText": "111"
+    },
+    "Booth_112": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-112",
+        "textElementId": "Text_Booth_112",
+        "originalBoothText": "112"
+    },
+    "Booth_113": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-113",
+        "textElementId": "Text_Booth_113",
+        "originalBoothText": "113"
+    },
+    "Booth_114": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-114",
+        "textElementId": "Text_Booth_114",
+        "originalBoothText": "114"
+    },
+    "Booth_200": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-200",
+        "textElementId": "Text_Booth_200",
+        "originalBoothText": "200"
+    },
+    "Booth_201": {
+        "status": "sold",
+        "companyName": "VitalSource",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-201",
+        "textElementId": "Text_Booth_201",
+        "originalBoothText": "201"
+    },
+    "Booth_202": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-202",
+        "textElementId": "Text_Booth_202",
+        "originalBoothText": "202"
+    },
+    "Booth_203": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-203",
+        "textElementId": "Text_Booth_203",
+        "originalBoothText": "203"
+    },
+    "Booth_204": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-204",
+        "textElementId": "Text_Booth_204",
+        "originalBoothText": "204"
+    },
+    "Booth_205": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-205",
+        "textElementId": "Text_Booth_205",
+        "originalBoothText": "205"
+    },
+    "Booth_206": { 
+        "status": "reserved",
+        "companyName": "UNAVAILABLE",
+        "purchaseUrl": "",
+        "textElementId": null,
+        "originalBoothText": "206",
+        "showTooltip": false
+    },
+    "booth_207": { 
+        "status": "reserved",
+        "companyName": "UNAVAILABLE",
+        "purchaseUrl": "",
+        "textElementId": null, 
+        "originalBoothText": "207",
+        "showTooltip": false
+    },
+    "Booth_208": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-208",
+        "textElementId": "Text_Booth_208",
+        "originalBoothText": "208"
+    },
+    "Booth_209": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-209",
+        "textElementId": "Text_Booth_209",
+        "originalBoothText": "209"
+    },
+    "Booth_210": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-210",
+        "textElementId": "Text_Booth_210",
+        "originalBoothText": "210"
+    },
+    "Booth_211": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-211",
+        "textElementId": "Text_Booth_211",
+        "originalBoothText": "211"
+    },
+    "Booth_212": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-212",
+        "textElementId": "Text_Booth_212",
+        "originalBoothText": "212"
+    },
+    "Booth_213": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-213",
+        "textElementId": "Text_Booth_213",
+        "originalBoothText": "213"
+    },
+    "Booth_300": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-300",
+        "textElementId": "Text_Booth_300",
+        "originalBoothText": "300"
+    },
+    "Booth_301": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-301",
+        "textElementId": "Text_Booth_301",
+        "originalBoothText": "301"
+    },
+    "Booth_302": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-302",
+        "textElementId": "Text_Booth_302",
+        "originalBoothText": "302"
+    },
+    "Booth_303": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-303",
+        "textElementId": "Text_Booth_303",
+        "originalBoothText": "303"
+    },
+    "Booth_304": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-304",
+        "textElementId": "Text_Booth_304",
+        "originalBoothText": "304"
+    },
+    "Booth_305": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-305",
+        "textElementId": "Text_Booth_305",
+        "originalBoothText": "305"
+    },
+    "Booth_306": { 
+        "status": "reserved",
+        "companyName": "UNAVAILABLE",
+        "purchaseUrl": "",
+        "textElementId": null,
+        "originalBoothText": "306",
+        "showTooltip": false
+    },
+    "Booth_307": { 
+        "status": "reserved",
+        "companyName": "UNAVAILABLE",
+        "purchaseUrl": "",
+        "textElementId": null,
+        "originalBoothText": "307",
+        "showTooltip": false
+    },
+    "Booth_308": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-308",
+        "textElementId": "Text_Booth_308",
+        "originalBoothText": "308"
+    },
+    "Booth_309": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-309",
+        "textElementId": "Text_Booth_309",
+        "originalBoothText": "309"
+    },
+    "Booth_310": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-310",
+        "textElementId": "Text_Booth_310",
+        "originalBoothText": "310"
+    },
+    "Booth_311": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-311",
+        "textElementId": "Text_Booth_311",
+        "originalBoothText": "311"
+    },
+    "Booth_312": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-312",
+        "textElementId": "Text_Booth_312",
+        "originalBoothText": "312"
+    },
+    "Booth_313": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-313",
+        "textElementId": "Text_Booth_313",
+        "originalBoothText": "313"
+    },
+    "Booth_400": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-400",
+        "textElementId": "Text_Booth_400",
+        "originalBoothText": "400"
+    },
+    "Booth_401": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-401",
+        "textElementId": "Text_Booth_401",
+        "originalBoothText": "401"
+    },
+    "Booth_402": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-402",
+        "textElementId": "Text_Booth_402",
+        "originalBoothText": "402"
+    },
+    "Booth_403": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-403",
+        "textElementId": "Text_Booth_403",
+        "originalBoothText": "403"
+    },
+    "Booth_404": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-404",
+        "textElementId": "Text_Booth_404",
+        "originalBoothText": "404"
+    },
+    "Booth_405": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-405",
+        "textElementId": "Text_Booth_405",
+        "originalBoothText": "405"
+    },
+    "Booth_406": { 
+        "status": "reserved",
+        "companyName": "UNAVAILABLE",
+        "purchaseUrl": "",
+        "textElementId": null,
+        "originalBoothText": "406",
+        "showTooltip": false
+    },
+    "Booth_407": { 
+        "status": "reserved",
+        "companyName": "UNAVAILABLE",
+        "purchaseUrl": "",
+        "textElementId": null,
+        "originalBoothText": "407",
+        "showTooltip": false
+    },
+    "Booth_408": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-408",
+        "textElementId": "Text_Booth_408",
+        "originalBoothText": "408"
+    },
+    "Booth_409": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-409",
+        "textElementId": "Text_Booth_409",
+        "originalBoothText": "409"
+    },
+    "Booth_410": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-410",
+        "textElementId": "Text_Booth_410",
+        "originalBoothText": "410"
+    },
+    "Booth_411": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-411",
+        "textElementId": "Text_Booth_411",
+        "originalBoothText": "411"
+    },
+    "Booth_412": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-412",
+        "textElementId": "Text_Booth_412",
+        "originalBoothText": "412"
+    },
+    "Booth_413": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-413",
+        "textElementId": "Text_Booth_413",
+        "originalBoothText": "413"
+    },
+    "Booth_500": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-500",
+        "textElementId": "Text_Booth_500",
+        "originalBoothText": "500"
+    },
+    "Booth_501": {
+        "status": "sold",
+        "companyName": "Login",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-501",
+        "textElementId": "Text_Booth_501",
+        "originalBoothText": "501"
+    },
+    "Booth_502": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-502",
+        "textElementId": "Text_Booth_502",
+        "originalBoothText": "502"
+    },
+    "Booth_503": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-503",
+        "textElementId": "Text_Booth_503",
+        "originalBoothText": "503"
+    },
+    "Booth_504": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-504",
+        "textElementId": "Text_Booth_504",
+        "originalBoothText": "504"
+    },
+    "Booth_505": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-505",
+        "textElementId": "Text_Booth_505",
+        "originalBoothText": "505"
+    },
+    "Booth_506": { 
+        "status": "reserved",
+        "companyName": "UNAVAILABLE",
+        "purchaseUrl": "",
+        "textElementId": null,
+        "originalBoothText": "506",
+        "showTooltip": false
+    },
+    "Booth_507": { 
+        "status": "reserved",
+        "companyName": "UNAVAILABLE",
+        "purchaseUrl": "",
+        "textElementId": null,
+        "originalBoothText": "507",
+        "showTooltip": false
+    },
+    "Booth_508": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-508",
+        "textElementId": "Text_Booth_508",
+        "originalBoothText": "508"
+    },
+    "Booth_509": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-509",
+        "textElementId": "Text_Booth_509",
+        "originalBoothText": "509"
+    },
+    "Booth_510": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-510",
+        "textElementId": "Text_Booth_510",
+        "originalBoothText": "510"
+    },
+    "Booth_511": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-511",
+        "textElementId": "Text_Booth_511",
+        "originalBoothText": "511"
+    },
+    "Booth_512": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-512",
+        "textElementId": "Text_Booth_512",
+        "originalBoothText": "512"
+    },
+    "Booth_513": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-513",
+        "textElementId": "Text_Booth_513",
+        "originalBoothText": "513"
+    },
+    "Booth_600": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-600",
+        "textElementId": "Text_Booth_600",
+        "originalBoothText": "600"
+    },
+    "Booth_601": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-601",
+        "textElementId": "Text_Booth_601",
+        "originalBoothText": "601"
+    },
+        "Booth_602": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-602",
+        "textElementId": "Text_Booth_602",
+        "originalBoothText": "602"
+    },
+    "Booth_604": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-604",
+        "textElementId": "Text_Booth_604",
+        "originalBoothText": "604"
+    },
+    "Booth_605": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-605",
+        "textElementId": "Text_Booth_605",
+        "originalBoothText": "605"
+    },
+    "Booth_606": { 
+        "status": "reserved",
+        "companyName": "UNAVAILABLE",
+        "purchaseUrl": "",
+        "textElementId": null,
+        "originalBoothText": "606",
+        "showTooltip": false
+    },
+    "Booth_607": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-607",
+        "textElementId": "Text_Booth_607",
+        "originalBoothText": "607"
+    },
+    "Booth_608": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-608",
+        "textElementId": "Text_Booth_608",
+        "originalBoothText": "608"
+    },
+    "Booth_609": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-609",
+        "textElementId": "Text_Booth_609",
+        "originalBoothText": "609"
+    },
+    "Booth_610": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-610",
+        "textElementId": "Text_Booth_610",
+        "originalBoothText": "610"
+    },
+    "Booth_611": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-611",
+        "textElementId": "Text_Booth_611",
+        "originalBoothText": "611"
+    },
+    "Booth_612": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-612",
+        "textElementId": "Text_Booth_612",
+        "originalBoothText": "612"
+    },
+    "Booth_613": {
+        "status": "available",
+        "companyName": "",
+        "purchaseUrl": "https://www.campusstores.events/conference-26/booth-613",
+        "textElementId": "Text_Booth_613",
+        "originalBoothText": "613"
+    }
+};
 
-        // Status management
-        let isLoading = false;
-        let lastUpdateTime = null;
-        let pollInterval = null;
+// Status management
+let isLoading = false;
+let lastUpdateTime = null;
+let pollInterval = null;
 
-        // UI Elements
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const mapContent = document.getElementById('mapContent');
-        const statusIndicator = document.getElementById('statusIndicator');
+async function fetchBoothDataFromNotion() {
+    try {
+        console.log('Fetching live data from Notion...');
+        
+        // Use our serverless function instead of hitting Notion directly
+        const response = await fetch('/api/booths');
 
-        function showLoading() {
-            console.log('🔄 Showing loading overlay');
-            loadingOverlay.classList.remove('hidden');
-            mapContent.classList.remove('loaded');
-            statusIndicator.textContent = 'Loading...';
-            statusIndicator.className = 'status-indicator status-loading';
-            isLoading = true;
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status} - ${response.statusText}`);
         }
 
-        function hideLoading() {
-            console.log('✅ Hiding loading overlay');
-            setTimeout(() => {
-                loadingOverlay.classList.add('hidden');
-                mapContent.classList.add('loaded');
-                isLoading = false;
-                
-                // Update status indicator
-                if (lastUpdateTime) {
-                    statusIndicator.textContent = `Live (Updated ${lastUpdateTime.toLocaleTimeString()})`;
-                    statusIndicator.className = 'status-indicator status-live';
-                } else {
-                    statusIndicator.textContent = 'Live';
-                    statusIndicator.className = 'status-indicator status-live';
-                }
-            }, 500); // Small delay to show completion before hiding
-        }
-
-        function showError() {
-            console.log('❌ Showing error state');
-            loadingOverlay.classList.add('hidden');
-            mapContent.classList.add('loaded');
-            statusIndicator.textContent = 'Connection Error';
-            statusIndicator.className = 'status-indicator status-error';
-            isLoading = false;
-        }
-
-        async function fetchBoothDataFromNotion() {
-            // Only show loading overlay if this is the initial load
-            if (!lastUpdateTime) {
-                showLoading();
-            } else {
-                // For refreshes, just update status indicator
-                statusIndicator.textContent = 'Refreshing...';
-                statusIndicator.className = 'status-indicator status-loading';
-            }
-
+        const data = await response.json();
+        console.log('Notion data received:', data.results.length, 'booth records');
+        
+        // Transform Notion data and update boothData
+        let updatedCount = 0;
+        data.results.forEach(item => {
             try {
-                console.log('📡 Fetching live data from Notion...');
+                const boothNumber = item.properties['Booth Number']?.title?.[0]?.plain_text;
+                if (!boothNumber) return;
                 
-                const response = await fetch('/api/booths');
-
-                if (!response.ok) {
-                    throw new Error(`API error: ${response.status} - ${response.statusText}`);
+                const boothId = `Booth_${boothNumber}`;
+                const status = item.properties['Status']?.status?.name?.toLowerCase() || 'available';
+                
+                // Extract company name from enriched organization data
+                let companyName = '';
+                if (status === 'sold') {
+                    companyName = item._organizationName || 'SOLD';
                 }
-
-                const data = await response.json();
-                console.log('📊 Notion data received:', data.results.length, 'booth records');
                 
-                // Transform Notion data and update boothData
-                let updatedCount = 0;
-                data.results.forEach(item => {
-                    try {
-                        const boothNumber = item.properties['Booth Number']?.title?.[0]?.plain_text;
-                        if (!boothNumber) return;
-                        
-                        const boothId = `Booth_${boothNumber}`;
-                        const status = item.properties['Status']?.status?.name?.toLowerCase() || 'available';
-                        
-                        // Extract company name from enriched organization data
-                        let companyName = '';
-                        if (status === 'sold') {
-                            companyName = item._organizationName || 'SOLD';
-                        }
-                        
-                        // Update booth data if it exists
-                        if (boothData[boothId]) {
-                            const oldStatus = boothData[boothId].status;
-                            boothData[boothId].status = status === 'sold' ? 'sold' : 'available';
-                            boothData[boothId].companyName = companyName;
-                            
-                            if (oldStatus !== boothData[boothId].status) {
-                                console.log(`🔄 Booth ${boothNumber} status changed: ${oldStatus} → ${boothData[boothId].status}`);
-                                updatedCount++;
-                            }
-                        } else {
-                            // Handle special cases like booth_600
-                            const altBoothId = `booth_${boothNumber}`;
-                            if (boothData[altBoothId]) {
-                                boothData[altBoothId].status = status === 'sold' ? 'sold' : 'available';
-                                boothData[altBoothId].companyName = companyName;
-                                updatedCount++;
-                            }
-                        }
-                        
-                    } catch (error) {
-                        console.error('Error processing booth item:', error, item);
+                // Update booth data if it exists
+                if (boothData[boothId]) {
+                    const oldStatus = boothData[boothId].status;
+                    boothData[boothId].status = status === 'sold' ? 'sold' : 'available';
+                    boothData[boothId].companyName = companyName;
+                    
+                    if (oldStatus !== boothData[boothId].status) {
+                        console.log(`Booth ${boothNumber} status changed: ${oldStatus} → ${boothData[boothId].status}`);
+                        updatedCount++;
                     }
-                });
-                
-                // Save to localStorage as fallback
-                localStorage.setItem('boothData', JSON.stringify(boothData));
-                localStorage.setItem('lastUpdate', Date.now().toString());
-                
-                // Update the map with new data
-                updateAllBooths();
-                
-                lastUpdateTime = new Date();
-                console.log(`🎉 Map updated: ${updatedCount} booths changed at ${lastUpdateTime.toLocaleTimeString()}`);
-                
-                hideLoading();
+                } else {
+                    // Handle special cases like booth_600
+                    const altBoothId = `booth_${boothNumber}`;
+                    if (boothData[altBoothId]) {
+                        boothData[altBoothId].status = status === 'sold' ? 'sold' : 'available';
+                        boothData[altBoothId].companyName = companyName;
+                        updatedCount++;
+                    }
+                }
                 
             } catch (error) {
-                console.error('💥 Error fetching from Notion:', error);
-                
-                // Try to load from localStorage fallback
-                const savedData = localStorage.getItem('boothData');
-                if (savedData) {
-                    try {
-                        const parsedData = JSON.parse(savedData);
-                        boothData = parsedData;
-                        updateAllBooths();
-                        console.log('📦 Using cached booth data due to fetch error');
-                        hideLoading();
-                    } catch (parseError) {
-                        console.error('Error parsing cached data:', parseError);
-                        showError();
-                    }
-                } else {
-                    showError();
-                }
+                console.error('Error processing booth item:', error, item);
+            }
+        });
+        
+    // Save to localStorage as fallback
+    localStorage.setItem('boothData', JSON.stringify(boothData));
+    localStorage.setItem('lastUpdate', Date.now().toString());
+        
+    // Update the map with new data
+updateAllBooths();
+        
+        lastUpdateTime = new Date();
+        console.log(`Map updated: ${updatedCount} booths changed at ${lastUpdateTime.toLocaleTimeString()}`);
+        
+    } catch (error) {
+        console.error('Error fetching from Notion:', error);
+        
+        // Try to load from localStorage fallback
+        const savedData = localStorage.getItem('boothData');
+        if (savedData) {
+            try {
+                const parsedData = JSON.parse(savedData);
+                boothData = parsedData;
+                updateAllBooths();
+                console.log('Using cached booth data due to fetch error');
+            } catch (parseError) {
+                console.error('Error parsing cached data:', parseError);
             }
         }
+    }
+}
 
-        function updateBoothElement(boothRectElement, boothInfo, boothIdKey) {
-            // Your existing updateBoothElement function stays the same
-            const svgElement = document.querySelector('#boothMapContainer svg');
-            const tooltipElement = document.getElementById('boothTooltip');
-            
-            const styles = {
-                available: { rectFill: "#fff", textFill: "#5f5d61", cursor: "pointer" },
-                sold: { rectFill: "#991f22", textFill: "#fff", cursor: "default" },
-                reserved: { rectFill: "#5f5d61", textFill: "#cccccc", cursor: "not-allowed" }
-            };
-            
-            const MAX_COMPANY_NAME_LENGTH = 12; 
-            const DEFAULT_FONT_SIZE_SVG = 40; 
+function updateBoothElement(boothRectElement, boothInfo, boothIdKey) {
+    const svgElement = document.querySelector('#boothMapContainer svg');
+    const tooltipElement = document.getElementById('boothTooltip');
+    
+    const styles = {
+        available: { rectFill: "#fff", textFill: "#5f5d61", cursor: "pointer" },
+        sold: { rectFill: "#991f22", textFill: "#fff", cursor: "default" },
+        reserved: { rectFill: "#5f5d61", textFill: "#cccccc", cursor: "not-allowed" }
+    };
+    
+    const MAX_COMPANY_NAME_LENGTH = 12; 
+    const DEFAULT_FONT_SIZE_SVG = 40; 
 
-            // ... rest of your existing updateBoothElement logic ...
-            // (keeping this the same to avoid breaking changes)
-        }
+    let textElement = null;
+    if (boothInfo.textElementId) {
+        textElement = svgElement.querySelector(`#${boothInfo.textElementId}`);
+    }
 
-        function updateAllBooths() {
+    if (textElement && !textElement.hasAttribute('data-original-font-size-val')) {
+        const currentFontSize = textElement.getAttribute('font-size') || DEFAULT_FONT_SIZE_SVG;
+       textElement.setAttribute('data-original-font-size-val', currentFontSize);
+   }
+   const originalFontSize = textElement ? (textElement.getAttribute('data-original-font-size-val') || DEFAULT_FONT_SIZE_SVG) : DEFAULT_FONT_SIZE_SVG;
+
+   // Apply styling based on status
+   if (boothInfo.status === "available") {
+       boothRectElement.style.fill = styles.available.rectFill;
+       boothRectElement.style.cursor = styles.available.cursor;
+       boothRectElement.classList.add('booth-available');
+       boothRectElement.classList.remove('booth-sold', 'booth-reserved');
+
+       if (textElement) {
+           textElement.style.fill = styles.available.textFill;
+           textElement.setAttribute('text-anchor', 'start'); 
+           textElement.setAttribute('dominant-baseline', 'auto');
+           textElement.setAttribute('font-size', originalFontSize); 
+           if (boothInfo.originalBoothText) {
+               textElement.textContent = boothInfo.originalBoothText;
+           }
+       }
+   } else if (boothInfo.status === "sold") {
+       boothRectElement.style.fill = styles.sold.rectFill;
+       boothRectElement.style.cursor = styles.sold.cursor;
+       boothRectElement.classList.add('booth-sold');
+       boothRectElement.classList.remove('booth-available', 'booth-reserved');
+
+       if (textElement) {
+           textElement.style.fill = styles.sold.textFill;
+           let companyNameToDisplay = boothInfo.companyName || "SOLD";
+           
+           if (companyNameToDisplay.length > MAX_COMPANY_NAME_LENGTH) {
+               companyNameToDisplay = companyNameToDisplay.substring(0, MAX_COMPANY_NAME_LENGTH - 3) + "...";
+           }
+           textElement.textContent = companyNameToDisplay;
+           textElement.setAttribute('font-size', parseFloat(originalFontSize) * 0.8); 
+
+           const rectBBox = boothRectElement.getBBox();
+           textElement.setAttribute('text-anchor', 'middle');
+           textElement.setAttribute('x', rectBBox.x + rectBBox.width / 2);
+           textElement.setAttribute('y', rectBBox.y + rectBBox.height / 2);
+           textElement.setAttribute('dominant-baseline', 'middle');
+       }
+   } else if (boothInfo.status === "reserved") {
+       boothRectElement.style.fill = styles.reserved.rectFill;
+       boothRectElement.style.cursor = styles.reserved.cursor;
+       boothRectElement.classList.add('booth-reserved');
+       boothRectElement.classList.remove('booth-available', 'booth-sold');
+       if (textElement) { 
+           textElement.textContent = boothInfo.companyName || "N/A"; 
+           textElement.style.fill = styles.reserved.textFill;
+           textElement.setAttribute('font-size', parseFloat(originalFontSize) * 0.7); 
+           const rectBBox = boothRectElement.getBBox();
+           textElement.setAttribute('text-anchor', 'middle');
+           textElement.setAttribute('x', rectBBox.x + rectBBox.width / 2);
+           textElement.setAttribute('y', rectBBox.y + rectBBox.height / 2);
+           textElement.setAttribute('dominant-baseline', 'middle');
+       }
+   }
+
+   // Clone and replace element to reset event listeners
+   const newBoothRectElement = boothRectElement.cloneNode(true);
+   if (boothRectElement.parentNode) {
+       boothRectElement.parentNode.replaceChild(newBoothRectElement, boothRectElement);
+   } else {
+       console.warn("Parent node not found:", boothIdKey);
+       return; 
+   }
+
+   // Add click handlers
+   newBoothRectElement.addEventListener('click', () => {
+       if (boothInfo.status === "available" && boothInfo.purchaseUrl) {
+           window.open(boothInfo.purchaseUrl, '_blank');
+       } else if (boothInfo.status === "sold") {
+           alert(`Booth ${boothInfo.companyName || boothInfo.originalBoothText || boothIdKey} is sold.`);
+       } else if (boothInfo.status === "reserved") {
+           alert(`Booth ${boothInfo.originalBoothText || boothIdKey} is currently unavailable.`);
+       }
+   });
+   
+   // Add tooltip handlers (only if showTooltip is not explicitly false)
+   if (tooltipElement && boothInfo.showTooltip !== false) {
+       newBoothRectElement.addEventListener('mousemove', (event) => {
+           let tooltipText = `Booth: ${boothInfo.originalBoothText || boothIdKey}`;
+           if (boothInfo.status === 'sold') {
+               tooltipText = boothInfo.companyName ? `${boothInfo.companyName} (Sold)` : `Booth ${boothInfo.originalBoothText || boothIdKey} (Sold)`;
+           } else if (boothInfo.status === 'reserved') {
+               tooltipText = `Booth ${boothInfo.originalBoothText || boothIdKey} (Unavailable)`;
+           } else {
+                tooltipText = `Booth ${boothInfo.originalBoothText || boothIdKey} (Available)`;
+           }
+           tooltipElement.textContent = tooltipText;
+           tooltipElement.style.display = 'block';
+           tooltipElement.style.left = (event.pageX + 15) + 'px';
+           tooltipElement.style.top = (event.pageY + 15) + 'px';
+       });
+       newBoothRectElement.addEventListener('mouseout', () => {
+           tooltipElement.style.display = 'none';
+       });
+   }
+}
+
+// Initialize everything when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+   const svgElement = document.querySelector('#boothMapContainer svg');
+   const tooltipElement = document.getElementById('boothTooltip');
+
+   if (!svgElement) {
+       console.error('SVG map element not found! Make sure your SVG code is pasted into #boothMapContainer.');
+       return;
+   }
+   if (!tooltipElement && boothData && Object.keys(boothData).length > 0) { 
+       console.warn('Tooltip element with ID "boothTooltip" not found. Tooltips will not be functional.');
+   }
+
+   console.log('Initializing live booth map...');
+   
+   // Initial map setup with static data
+setTimeout(() => {
+    console.log('Attempting to call updateAllBooths...');
+    if (typeof updateAllBooths === 'function') {
+        updateAllBooths();
+        console.log('updateAllBooths called successfully');
+    } else {
+        console.error('updateAllBooths function not found!');
+        // Try to define it inline as a backup
+        window.updateAllBooths = function() {
+            console.log('Using backup updateAllBooths');
             const svgElement = document.querySelector('#boothMapContainer svg');
             if (!svgElement) {
-                console.error('📍 SVG element not found');
+                console.error('SVG element not found');
                 return;
             }
 
-            // Re-run booth update logic for all booths
-            for (const boothId in boothData) {
-                if (boothData.hasOwnProperty(boothId)) {
-                    const boothInfo = boothData[boothId];
-                    let boothElementToUpdate = svgElement.querySelector(`#${boothId}`); 
-                    let isGroup = false;
+        // Re-run booth update logic for all booths
+        for (const boothId in boothData) {
+            if (boothData.hasOwnProperty(boothId)) {
+                const boothInfo = boothData[boothId];
+                let boothElementToUpdate = svgElement.querySelector(`#${boothId}`); 
+                let isGroup = false;
 
-                    if (!boothElementToUpdate) {
-                        const groupID = `_${boothId}`;
-                        const boothGroupElement = svgElement.querySelector(`#${groupID}`);
-                        if (boothGroupElement) {
-                             boothElementToUpdate = boothGroupElement.querySelector('rect');
-                             if (boothElementToUpdate) isGroup = true;
-                        }
+                if (!boothElementToUpdate) {
+                    const groupID = `_${boothId}`; 
+                    const boothGroupElement = svgElement.querySelector(`#${groupID}`);
+                    if (boothGroupElement) {
+                         boothElementToUpdate = boothGroupElement.querySelector('rect');
+                         if (boothElementToUpdate) isGroup = true;
                     }
-                
-                    if (boothElementToUpdate) {
-                        const parentNodeForClass = isGroup ? boothElementToUpdate.parentNode : boothElementToUpdate;
-                        parentNodeForClass.classList.remove('booth-available', 'booth-sold', 'booth-reserved');
-                        if (boothInfo.status === 'sold') {
-                            parentNodeForClass.classList.add('booth-sold');
-                        } else if (boothInfo.status === 'reserved') {
-                            parentNodeForClass.classList.add('booth-reserved');
-                        } else {
-                            parentNodeForClass.classList.add('booth-available');
-                        }
-                        updateBoothElement(boothElementToUpdate, boothInfo, boothId);
+                }
+            
+                if (boothElementToUpdate) {
+                    const parentNodeForClass = isGroup ? boothElementToUpdate.parentNode : boothElementToUpdate;
+                    parentNodeForClass.classList.remove('booth-available', 'booth-sold', 'booth-reserved');
+                    if (boothInfo.status === 'sold') {
+                        parentNodeForClass.classList.add('booth-sold');
+                    } else if (boothInfo.status === 'reserved') {
+                        parentNodeForClass.classList.add('booth-reserved');
+                    } else {
+                        parentNodeForClass.classList.add('booth-available');
                     }
+                    updateBoothElement(boothElementToUpdate, boothInfo, boothId);
                 }
             }
         }
+    };
+    }
+}, 100);
+   
+   // Start polling for live updates
+   fetchBoothDataFromNotion(); // Initial fetch
+   pollInterval = setInterval(fetchBoothDataFromNotion, NOTION_CONFIG.refreshInterval);
+   
+   console.log(`Polling started - will update every ${NOTION_CONFIG.refreshInterval/1000} seconds`);
+   console.log('Live booth map initialized successfully!');
+});
 
-        // Initialize everything when DOM is ready
-        document.addEventListener('DOMContentLoaded', () => {
-           const svgElement = document.querySelector('#boothMapContainer svg');
-           const tooltipElement = document.getElementById('boothTooltip');
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+   if (pollInterval) {
+       clearInterval(pollInterval);
+       console.log('Polling stopped');
+   }
+});
 
-           if (!svgElement) {
-               console.error('📍 SVG map element not found! Make sure your SVG code is pasted into #boothMapContainer.');
-               showError();
-               return;
-           }
+// Debug function - call from console to manually trigger update
+window.debugUpdateBooths = () => {
+   console.log('Manual booth update triggered');
+   fetchBoothDataFromNotion();
+};
 
-           console.log('🚀 Initializing live booth map...');
-           
-           // Start with initial data load
-           fetchBoothDataFromNotion();
-           
-           // Set up polling for live updates
-           pollInterval = setInterval(fetchBoothDataFromNotion, NOTION_CONFIG.refreshInterval);
-           
-           console.log(`⏱️ Polling started - will update every ${NOTION_CONFIG.refreshInterval/1000} seconds`);
-        });
-
-        // Cleanup on page unload
-        window.addEventListener('beforeunload', () => {
-           if (pollInterval) {
-               clearInterval(pollInterval);
-               console.log('🛑 Polling stopped');
-           }
-        });
-
-        // Debug functions
-        window.debugUpdateBooths = () => {
-           console.log('🔧 Manual booth update triggered');
-           fetchBoothDataFromNotion();
-        };
-
-        window.debugBoothData = () => {
-           console.log('📊 Current booth data:', boothData);
-           const soldBooths = Object.entries(boothData).filter(([id, info]) => info.status === 'sold');
-           console.log('💰 Sold booths:', soldBooths);
-        };
-    </script>
+// Debug function - call from console to see current booth data
+window.debugBoothData = () => {
+   console.log('Current booth data:', boothData);
+   const soldBooths = Object.entries(boothData).filter(([id, info]) => info.status === 'sold');
+   console.log('Sold booths:', soldBooths);
+};
+</script>
 </body>
-</html>
