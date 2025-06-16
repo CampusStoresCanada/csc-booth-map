@@ -811,7 +811,13 @@ async function fetchBoothDataFromNotion() {
                     // Handle special cases like booth_600
                     const altBoothId = `booth_${boothNumber}`;
                     if (boothData[altBoothId]) {
-                        boothData[altBoothId].status = status === 'sold' ? 'sold' : 'available';
+                        if (status === 'sold') {
+                            boothData[altBoothId].status = 'sold';
+                        } else if (status === 'reserved') {
+                            boothData[altBoothId].status = 'reserved';
+                        } else {
+                            boothData[altBoothId].status = 'available';
+                        }
                         boothData[altBoothId].companyName = companyName;
                         updatedCount++;
                     }
@@ -875,7 +881,7 @@ function updateBoothElement(boothRectElement, boothInfo, boothIdKey) {
     const styles = {
         available: { rectFill: "#fff", textFill: "#5f5d61", cursor: "pointer" },
         sold: { rectFill: "#991f22", textFill: "#fff", cursor: "default" },
-        reserved: { opacity: "0", cursor: "default" } // Just invisible
+        reserved: { rectFill: "#333333", textFill: "#cccccc", cursor: "not-allowed" }
     };
     
     const MAX_COMPANY_NAME_LENGTH = 12; 
@@ -931,15 +937,15 @@ function updateBoothElement(boothRectElement, boothInfo, boothIdKey) {
            textElement.setAttribute('dominant-baseline', 'middle');
        }
            } else if (boothInfo.status === "reserved") {
-           boothRectElement.style.opacity = "0";
-           boothRectElement.style.cursor = "default";
-           boothRectElement.classList.add('booth-reserved');
-           boothRectElement.classList.remove('booth-available', 'booth-sold');
-           
-           if (textElement) {
-               textElement.style.opacity = "0"; // Hide the text too
+                boothRectElement.style.fill = "#333333";
+                boothRectElement.style.cursor = "not-allowed";
+                boothRectElement.classList.add('booth-reserved');
+                boothRectElement.classList.remove('booth-available', 'booth-sold');
+            
+                if (textElement) {
+                    textElement.style.fill = "#cccccc"; // Light gray text so booth numbers are still visible
+                }
             }
-        }
 
    // Clone and replace element to reset event listeners
    const newBoothRectElement = boothRectElement.cloneNode(true);
@@ -1051,78 +1057,48 @@ setTimeout(() => {
    
    // Start polling for live updates
    fetchBoothDataFromNotion(); // Initial fetch
-   pollInterval = setInterval(fetchBoothDataFromNotion, NOTION_CONFIG.refreshInterval);
-   
-   console.log(`Polling started - will update every ${NOTION_CONFIG.refreshInterval/1000} seconds`);
-   console.log('Live booth map initialized successfully!');
-});
-
-// Cleanup on page unload
-window.addEventListener('beforeunload', () => {
-   if (pollInterval) {
-       clearInterval(pollInterval);
-       console.log('Polling stopped');
-   }
-});
-
-// Debug function - call from console to manually trigger update
-window.debugUpdateBooths = () => {
-   console.log('Manual booth update triggered');
-   fetchBoothDataFromNotion();
-};
-
-// Debug function - call from console to see current booth data
-window.debugBoothData = () => {
-   console.log('Current booth data:', boothData);
-   const soldBooths = Object.entries(boothData).filter(([id, info]) => info.status === 'sold');
-   console.log('Sold booths:', soldBooths);
-};
-        window.debugReservedBooths = () => {
-    const reservedBooths = Object.entries(boothData).filter(([id, info]) => info.status === 'reserved');
-    console.log('Reserved booths in data:', reservedBooths);
+       pollInterval = setInterval(fetchBoothDataFromNotion, NOTION_CONFIG.refreshInterval);
+       
+       console.log(`Polling started - will update every ${NOTION_CONFIG.refreshInterval/1000} seconds`);
+       console.log('Live booth map initialized successfully!');
+    });
     
-    const svgElement = document.querySelector('#boothMapContainer svg');
-    
-    reservedBooths.forEach(([boothId, boothInfo]) => {
-        console.log(`\n--- Checking ${boothId} ---`);
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+       if (pollInterval) {
+           clearInterval(pollInterval);
+           console.log('Polling stopped');
+       }
+    });
         
-        // Try to find the booth element
-        let boothElement = svgElement.querySelector(`#${boothId}`);
-        if (!boothElement) {
-            // Try alternative naming
-            const altId = boothId.includes('_') ? boothId : `_${boothId}`;
-            const altGroup = svgElement.querySelector(`#${altId}`);
-            if (altGroup) {
-                boothElement = altGroup.querySelector('rect');
-                console.log(`Found via group: ${altId}`);
+    function updateAllBooths() {
+        const svgElement = document.querySelector('#boothMapContainer svg');
+        if (!svgElement) {
+            console.error('SVG element not found');
+            return;
+        }
+    
+        // Loop through all booths in your data
+        for (const boothId in boothData) {
+            const boothInfo = boothData[boothId];
+            
+            // Find the booth rectangle in the SVG
+            let boothRect = svgElement.querySelector(`#${boothId}`);
+            
+            // If not found, try the group approach (like _101, _102, etc.)
+            if (!boothRect) {
+                const groupId = `_${boothId.replace('Booth_', '')}`;
+                const group = svgElement.querySelector(`#${groupId}`);
+                if (group) {
+                    boothRect = group.querySelector('rect');
+                }
+            }
+            
+            // Apply the styling if we found the element
+            if (boothRect) {
+                updateBoothElement(boothRect, boothInfo, boothId);
             }
         }
-        
-        if (boothElement) {
-            console.log(`Element found: ${boothElement.id || 'no id'}`);
-            console.log(`Current fill: ${boothElement.style.fill || boothElement.getAttribute('fill')}`);
-            console.log(`Current classes: ${boothElement.classList.toString()}`);
-        } else {
-            console.log(`❌ Element NOT found for ${boothId}`);
-        }
-    });
-    const originalBoothData = { ...boothData };
-
-    // Override the boothData setter to catch changes
-    Object.defineProperty(window, 'boothDataDebug', {
-        set: function(newData) {
-            // Check if booth 606 changed
-            if (boothData.Booth_606 && newData.Booth_606 && 
-                boothData.Booth_606.status !== newData.Booth_606.status) {
-                console.trace('🚨 Booth 606 status changed!', 
-                             boothData.Booth_606.status, '→', newData.Booth_606.status);
-            }
-            boothData = newData;
-        },
-        get: function() {
-            return boothData;
-        }
-    });
-};
+    }
 </script>
 </body>
