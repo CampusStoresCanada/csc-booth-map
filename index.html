@@ -794,7 +794,13 @@ async function fetchBoothDataFromNotion() {
                 // Update booth data if it exists
                 if (boothData[boothId]) {
                     const oldStatus = boothData[boothId].status;
-                    boothData[boothId].status = status === 'sold' ? 'sold' : 'available';
+                    if (status === 'sold') {
+                        boothData[boothId].status = 'sold';
+                    } else if (status === 'reserved') {
+                        boothData[boothId].status = 'reserved';
+                    } else {
+                        boothData[boothId].status = 'available';
+                    }
                     boothData[boothId].companyName = companyName;
                     
                     if (oldStatus !== boothData[boothId].status) {
@@ -869,7 +875,7 @@ function updateBoothElement(boothRectElement, boothInfo, boothIdKey) {
     const styles = {
         available: { rectFill: "#fff", textFill: "#5f5d61", cursor: "pointer" },
         sold: { rectFill: "#991f22", textFill: "#fff", cursor: "default" },
-        reserved: { rectFill: "#5f5d61", textFill: "#cccccc", cursor: "not-allowed" }
+        reserved: { opacity: "0", cursor: "default" } // Just invisible
     };
     
     const MAX_COMPANY_NAME_LENGTH = 12; 
@@ -924,22 +930,16 @@ function updateBoothElement(boothRectElement, boothInfo, boothIdKey) {
            textElement.setAttribute('y', rectBBox.y + rectBBox.height / 2);
            textElement.setAttribute('dominant-baseline', 'middle');
        }
-   } else if (boothInfo.status === "reserved") {
-       boothRectElement.style.fill = styles.reserved.rectFill;
-       boothRectElement.style.cursor = styles.reserved.cursor;
-       boothRectElement.classList.add('booth-reserved');
-       boothRectElement.classList.remove('booth-available', 'booth-sold');
-       if (textElement) { 
-           textElement.textContent = boothInfo.companyName || "N/A"; 
-           textElement.style.fill = styles.reserved.textFill;
-           textElement.setAttribute('font-size', parseFloat(originalFontSize) * 0.7); 
-           const rectBBox = boothRectElement.getBBox();
-           textElement.setAttribute('text-anchor', 'middle');
-           textElement.setAttribute('x', rectBBox.x + rectBBox.width / 2);
-           textElement.setAttribute('y', rectBBox.y + rectBBox.height / 2);
-           textElement.setAttribute('dominant-baseline', 'middle');
-       }
-   }
+           } else if (boothInfo.status === "reserved") {
+           boothRectElement.style.opacity = "0";
+           boothRectElement.style.cursor = "default";
+           boothRectElement.classList.add('booth-reserved');
+           boothRectElement.classList.remove('booth-available', 'booth-sold');
+           
+           if (textElement) {
+               textElement.style.opacity = "0"; // Hide the text too
+            }
+        }
 
    // Clone and replace element to reset event listeners
    const newBoothRectElement = boothRectElement.cloneNode(true);
