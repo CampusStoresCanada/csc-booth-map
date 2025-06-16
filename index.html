@@ -903,17 +903,18 @@ function updateBoothElement(boothRectElement, boothInfo, boothIdKey) {
         boothRectElement.classList.remove('booth-available', 'booth-reserved');
         
         if (textElement) {
-            textElement.style.fill = "#fff";  
+            textElement.style.fill = "#fff";
+            
+            const optimalSize = calculateOptimalFontSize(textElement, boothRectElement);
+            textElement.style.fontSize = optimalSize + "px";
+            
             const formatted = formatCompanyNameForBooth(boothInfo.companyName || "SOLD");
             
             if (formatted.twoLine) {
-                // Simple approach - just put line break in between
-                textElement.innerHTML = `${formatted.twoLine.line1}<tspan dy="1.2em" x="0">${formatted.twoLine.line2}</tspan>`;
+                textElement.textContent = `${formatted.twoLine.line1}\n${formatted.twoLine.line2}`;
             } else {
                 textElement.textContent = formatted.singleLine;
-            }   
-            textElement.style.fontSize = "28px"; // Smaller to fit two lines
-      
+            }
         } else if (boothInfo.status === "reserved") {
             boothRectElement.style.fill = "#333333";
             boothRectElement.style.cursor = "not-allowed";
@@ -1052,33 +1053,32 @@ setTimeout(() => {
             return { singleLine: companyName };
         }
         
-        // Try to split on space and see if both parts fit
-        const words = companyName.split(' ');
-        if (words.length >= 2) {
-            // Find the best split point
-            let line1 = words[0];
-            let line2 = words.slice(1).join(' ');
+        // Look for the last space that would keep first line under limit
+        const lastSpaceIndex = companyName.lastIndexOf(' ', maxLineLength);
+        
+        if (lastSpaceIndex > 0) {
+            const line1 = companyName.substring(0, lastSpaceIndex);
+            let line2 = companyName.substring(lastSpaceIndex + 1);
             
-            // Try different split points
-            for (let i = 1; i < words.length; i++) {
-                const testLine1 = words.slice(0, i).join(' ');
-                const testLine2 = words.slice(i).join(' ');
-                
-                if (testLine1.length <= maxLineLength && testLine2.length <= maxLineLength) {
-                    line1 = testLine1;
-                    line2 = testLine2;
-                    break;
-                }
+            // Truncate second line if needed
+            if (line2.length > maxLineLength) {
+                line2 = line2.substring(0, maxLineLength - 3) + "...";
             }
             
-            // If both lines fit, return two-line version
-            if (line1.length <= maxLineLength && line2.length <= maxLineLength) {
-                return { twoLine: { line1, line2 } };
-            }
+            return { twoLine: { line1, line2 } };
         }
         
-        // Fall back to truncation
+        // No good split point, just truncate
         return { singleLine: companyName.substring(0, maxLineLength - 3) + "..." };
+    }
+    function calculateOptimalFontSize(textElement, boothRect, padding = 0.1) {
+        const rectBBox = boothRect.getBBox();
+        const availableWidth = rectBBox.width * (1 - padding * 2);
+        const availableHeight = rectBBox.height * (1 - padding * 2);
+        
+        // Start with a reasonable font size and scale down if needed
+        let fontSize = Math.min(availableWidth / 8, availableHeight / 3); // Rough estimate
+        return Math.max(fontSize, 16); // Minimum 16px
     }
 </script>
 </body>
