@@ -903,15 +903,15 @@ function updateBoothElement(boothRectElement, boothInfo, boothIdKey) {
         boothRectElement.classList.remove('booth-available', 'booth-reserved');
         
         if (textElement) {
-            textElement.style.fill = "#fff";
-            // Show company name, truncate if too long
-            let displayName = boothInfo.companyName || "SOLD";
-            if (displayName.length > 10) {
-                displayName = displayName.substring(0, 8) + "...";
+            textElement.style.fill = "#fff";  
+            const formatted = formatCompanyNameForBooth(boothInfo.companyName || "SOLD");
+            if (formatted.twoLine) {
+                    textElement.innerHTML = `<tspan x="${textElement.getAttribute('x')}" dy="0">${formatted.twoLine.line1}</tspan><tspan x="${textElement.getAttribute('x')}" dy="1.2em">${formatted.twoLine.line2}</tspan>`;
+            } else {
+                textElement.textContent = formatted.singleLine;
+            }   
+                textElement.style.fontSize = "32px";
             }
-            textElement.textContent = displayName;
-            textElement.style.fontSize = "32px"; // Smaller for company names
-        }
         
     } else if (boothInfo.status === "reserved") {
         boothRectElement.style.fill = "#333333";
@@ -1044,6 +1044,39 @@ setTimeout(() => {
                 updateBoothElement(boothRect, boothInfo, boothId);
             }
         }
+    }
+    function formatCompanyNameForBooth(companyName, maxLineLength = 12) {
+        if (!companyName || companyName.length <= maxLineLength) {
+            return { singleLine: companyName };
+        }
+        
+        // Try to split on space and see if both parts fit
+        const words = companyName.split(' ');
+        if (words.length >= 2) {
+            // Find the best split point
+            let line1 = words[0];
+            let line2 = words.slice(1).join(' ');
+            
+            // Try different split points
+            for (let i = 1; i < words.length; i++) {
+                const testLine1 = words.slice(0, i).join(' ');
+                const testLine2 = words.slice(i).join(' ');
+                
+                if (testLine1.length <= maxLineLength && testLine2.length <= maxLineLength) {
+                    line1 = testLine1;
+                    line2 = testLine2;
+                    break;
+                }
+            }
+            
+            // If both lines fit, return two-line version
+            if (line1.length <= maxLineLength && line2.length <= maxLineLength) {
+                return { twoLine: { line1, line2 } };
+            }
+        }
+        
+        // Fall back to truncation
+        return { singleLine: companyName.substring(0, maxLineLength - 3) + "..." };
     }
 </script>
 </body>
