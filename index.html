@@ -896,42 +896,44 @@ function updateBoothElement(boothRectElement, boothInfo, boothIdKey) {
             textElement.style.fontSize = "48px"; // Standard size
         }
         
-    } else if (boothInfo.status === "sold") {
-    boothRectElement.style.fill = "#991f22";
-    boothRectElement.style.cursor = "default";
-    boothRectElement.classList.add('booth-sold');
-    boothRectElement.classList.remove('booth-available', 'booth-reserved');
-    
-    if (textElement) {
-        textElement.style.fill = "#fff";  
-        const formatted = formatCompanyNameForBooth(boothInfo.companyName || "SOLD");
-        
-        if (formatted.twoLine) {
-            // Simple approach - just put line break in between
-            textElement.innerHTML = `${formatted.twoLine.line1}<tspan dy="1.2em" x="0">${formatted.twoLine.line2}</tspan>`;
-        } else {
-            textElement.textContent = formatted.singleLine;
-        }   
-        textElement.style.fontSize = "28px"; // Smaller to fit two lines
-    } else if (boothInfo.status === "reserved") {
-        boothRectElement.style.fill = "#333333";
-        boothRectElement.style.cursor = "not-allowed";
-        boothRectElement.classList.add('booth-reserved');
-        boothRectElement.classList.remove('booth-available', 'booth-sold');
+        } else if (boothInfo.status === "sold") {
+        boothRectElement.style.fill = "#991f22";
+        boothRectElement.style.cursor = "default";
+        boothRectElement.classList.add('booth-sold');
+        boothRectElement.classList.remove('booth-available', 'booth-reserved');
         
         if (textElement) {
-            textElement.style.fill = "#cccccc";
-            textElement.textContent = boothInfo.originalBoothText || "Reserved";
-            textElement.style.fontSize = "48px";
+            textElement.style.fill = "#fff";  
+            const formatted = formatCompanyNameForBooth(boothInfo.companyName || "SOLD");
+            
+            if (formatted.twoLine) {
+                // Simple approach - just put line break in between
+                textElement.innerHTML = `${formatted.twoLine.line1}<tspan dy="1.2em" x="0">${formatted.twoLine.line2}</tspan>`;
+            } else {
+                textElement.textContent = formatted.singleLine;
+            }   
+            textElement.style.fontSize = "28px"; // Smaller to fit two lines
+      
+        } else if (boothInfo.status === "reserved") {
+            boothRectElement.style.fill = "#333333";
+            boothRectElement.style.cursor = "not-allowed";
+            boothRectElement.classList.add('booth-reserved');
+            boothRectElement.classList.remove('booth-available', 'booth-sold');
+            
+            if (textElement) {
+                textElement.style.fill = "#cccccc";
+                textElement.textContent = boothInfo.originalBoothText || "Reserved";
+                textElement.style.fontSize = "48px";
+            }
         }
+        
+        // Simple click handler - no complex event cleanup
+        boothRectElement.onclick = () => {
+            if (boothInfo.status === "available" && boothInfo.purchaseUrl) {
+                window.open(boothInfo.purchaseUrl, '_blank');
+            }
+        };
     }
-    
-    // Simple click handler - no complex event cleanup
-    boothRectElement.onclick = () => {
-        if (boothInfo.status === "available" && boothInfo.purchaseUrl) {
-            window.open(boothInfo.purchaseUrl, '_blank');
-        }
-    };
 }
 
 // Initialize everything when DOM is ready
