@@ -1035,38 +1035,6 @@ setTimeout(() => {
             }
         }
     }
-    function formatCompanyNameForBooth(companyName, maxLineLength = 12) {
-        if (!companyName || companyName.length <= maxLineLength) {
-            return { singleLine: companyName };
-        }
-        
-        // Look for the last space that would keep first line under limit
-        const lastSpaceIndex = companyName.lastIndexOf(' ', maxLineLength);
-        
-        if (lastSpaceIndex > 0) {
-            const line1 = companyName.substring(0, lastSpaceIndex);
-            let line2 = companyName.substring(lastSpaceIndex + 1);
-            
-            // Truncate second line if needed
-            if (line2.length > maxLineLength) {
-                line2 = line2.substring(0, maxLineLength - 3) + "...";
-            }
-            
-            return { twoLine: { line1, line2 } };
-        }
-        
-        // No good split point, just truncate
-        return { singleLine: companyName.substring(0, maxLineLength - 3) + "..." };
-    }
-    function calculateOptimalFontSize(textElement, boothRect, padding = 0.1) {
-        const rectBBox = boothRect.getBBox();
-        const availableWidth = rectBBox.width * (1 - padding * 2);
-        const availableHeight = rectBBox.height * (1 - padding * 2);
-        
-        // Start with a reasonable font size and scale down if needed
-        let fontSize = Math.min(availableWidth / 8, availableHeight / 3); // Rough estimate
-        return Math.max(fontSize, 16); // Minimum 16px
-    }
     function addBoothLabel(boothRect, companyName, boothId) {
         // Clear any existing label for this booth
         const existingLabel = document.querySelector(`[data-booth-id="${boothId}"]`);
@@ -1099,5 +1067,7 @@ setTimeout(() => {
         label.style.transform = 'translate(-50%, -50%)';
         // ... rest of styling
     }
+    console.log(`Label for ${boothId}: company="${companyName}", color should be white`);
+    console.log('Computed color:', window.getComputedStyle(label).color);
 </script>
 </body>
