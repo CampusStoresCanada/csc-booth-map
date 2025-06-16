@@ -1106,6 +1106,23 @@ window.debugBoothData = () => {
             console.log(`❌ Element NOT found for ${boothId}`);
         }
     });
+    const originalBoothData = { ...boothData };
+
+    // Override the boothData setter to catch changes
+    Object.defineProperty(window, 'boothDataDebug', {
+        set: function(newData) {
+            // Check if booth 606 changed
+            if (boothData.Booth_606 && newData.Booth_606 && 
+                boothData.Booth_606.status !== newData.Booth_606.status) {
+                console.trace('🚨 Booth 606 status changed!', 
+                             boothData.Booth_606.status, '→', newData.Booth_606.status);
+            }
+            boothData = newData;
+        },
+        get: function() {
+            return boothData;
+        }
+    });
 };
 </script>
 </body>
