@@ -897,22 +897,22 @@ function updateBoothElement(boothRectElement, boothInfo, boothIdKey) {
         }
         
     } else if (boothInfo.status === "sold") {
-        boothRectElement.style.fill = "#991f22";
-        boothRectElement.style.cursor = "default";
-        boothRectElement.classList.add('booth-sold');
-        boothRectElement.classList.remove('booth-available', 'booth-reserved');
+    boothRectElement.style.fill = "#991f22";
+    boothRectElement.style.cursor = "default";
+    boothRectElement.classList.add('booth-sold');
+    boothRectElement.classList.remove('booth-available', 'booth-reserved');
+    
+    if (textElement) {
+        textElement.style.fill = "#fff";  
+        const formatted = formatCompanyNameForBooth(boothInfo.companyName || "SOLD");
         
-        if (textElement) {
-            textElement.style.fill = "#fff";  
-            const formatted = formatCompanyNameForBooth(boothInfo.companyName || "SOLD");
-            if (formatted.twoLine) {
-                textElement.textContent = `${formatted.twoLine.line1}\n${formatted.twoLine.line2}`;
-            } else {
-                textElement.textContent = formatted.singleLine;
-            }  
-                textElement.style.fontSize = "28px";
-            }
-        
+        if (formatted.twoLine) {
+            // Simple approach - just put line break in between
+            textElement.innerHTML = `${formatted.twoLine.line1}<tspan dy="1.2em" x="0">${formatted.twoLine.line2}</tspan>`;
+        } else {
+            textElement.textContent = formatted.singleLine;
+        }   
+        textElement.style.fontSize = "28px"; // Smaller to fit two lines
     } else if (boothInfo.status === "reserved") {
         boothRectElement.style.fill = "#333333";
         boothRectElement.style.cursor = "not-allowed";
