@@ -876,117 +876,62 @@ async function fetchBoothDataFromNotion() {
 
 function updateBoothElement(boothRectElement, boothInfo, boothIdKey) {
     const svgElement = document.querySelector('#boothMapContainer svg');
-    const tooltipElement = document.getElementById('boothTooltip');
     
-    const styles = {
-        available: { rectFill: "#fff", textFill: "#5f5d61", cursor: "pointer" },
-        sold: { rectFill: "#991f22", textFill: "#fff", cursor: "default" },
-        reserved: { rectFill: "#333333", textFill: "#cccccc", cursor: "not-allowed" }
-    };
-    
-    const MAX_COMPANY_NAME_LENGTH = 12; 
-    const DEFAULT_FONT_SIZE_SVG = 40; 
-
+    // Find the text element for this booth
     let textElement = null;
     if (boothInfo.textElementId) {
         textElement = svgElement.querySelector(`#${boothInfo.textElementId}`);
     }
-
-    if (textElement && !textElement.hasAttribute('data-original-font-size-val')) {
-        const currentFontSize = textElement.getAttribute('font-size') || DEFAULT_FONT_SIZE_SVG;
-       textElement.setAttribute('data-original-font-size-val', currentFontSize);
-   }
-   const originalFontSize = textElement ? (textElement.getAttribute('data-original-font-size-val') || DEFAULT_FONT_SIZE_SVG) : DEFAULT_FONT_SIZE_SVG;
-
-   // Apply styling based on status
-   if (boothInfo.status === "available") {
-       boothRectElement.style.fill = styles.available.rectFill;
-       boothRectElement.style.cursor = styles.available.cursor;
-       boothRectElement.classList.add('booth-available');
-       boothRectElement.classList.remove('booth-sold', 'booth-reserved');
-
-       if (textElement) {
-           textElement.style.fill = styles.available.textFill;
-           textElement.setAttribute('text-anchor', 'start'); 
-           textElement.setAttribute('dominant-baseline', 'auto');
-           textElement.setAttribute('font-size', originalFontSize); 
-           if (boothInfo.originalBoothText) {
-               textElement.textContent = boothInfo.originalBoothText;
-           }
-       }
-   } else if (boothInfo.status === "sold") {
-       boothRectElement.style.fill = styles.sold.rectFill;
-       boothRectElement.style.cursor = styles.sold.cursor;
-       boothRectElement.classList.add('booth-sold');
-       boothRectElement.classList.remove('booth-available', 'booth-reserved');
-
-       if (textElement) {
-           textElement.style.fill = styles.sold.textFill;
-           let companyNameToDisplay = boothInfo.companyName || "SOLD";
-           
-           if (companyNameToDisplay.length > MAX_COMPANY_NAME_LENGTH) {
-               companyNameToDisplay = companyNameToDisplay.substring(0, MAX_COMPANY_NAME_LENGTH - 3) + "...";
-           }
-           textElement.textContent = companyNameToDisplay;
-           textElement.setAttribute('font-size', parseFloat(originalFontSize) * 0.8); 
-
-           const rectBBox = boothRectElement.getBBox();
-           textElement.setAttribute('text-anchor', 'middle');
-           textElement.setAttribute('x', rectBBox.x + rectBBox.width / 2);
-           textElement.setAttribute('y', rectBBox.y + rectBBox.height / 2);
-           textElement.setAttribute('dominant-baseline', 'middle');
-       }
-           } else if (boothInfo.status === "reserved") {
-                boothRectElement.style.fill = "#333333";
-                boothRectElement.style.cursor = "not-allowed";
-                boothRectElement.classList.add('booth-reserved');
-                boothRectElement.classList.remove('booth-available', 'booth-sold');
-            
-                if (textElement) {
-                    textElement.style.fill = "#cccccc"; // Light gray text so booth numbers are still visible
-                }
+    
+    // Apply styling based on status
+    if (boothInfo.status === "available") {
+        boothRectElement.style.fill = "#fff";
+        boothRectElement.style.cursor = "pointer";
+        boothRectElement.classList.add('booth-available');
+        boothRectElement.classList.remove('booth-sold', 'booth-reserved');
+        
+        if (textElement) {
+            textElement.style.fill = "#5f5d61";
+            textElement.textContent = boothInfo.originalBoothText || "Available";
+            textElement.style.fontSize = "48px"; // Standard size
+        }
+        
+    } else if (boothInfo.status === "sold") {
+        boothRectElement.style.fill = "#991f22";
+        boothRectElement.style.cursor = "default";
+        boothRectElement.classList.add('booth-sold');
+        boothRectElement.classList.remove('booth-available', 'booth-reserved');
+        
+        if (textElement) {
+            textElement.style.fill = "#fff";
+            // Show company name, truncate if too long
+            let displayName = boothInfo.companyName || "SOLD";
+            if (displayName.length > 10) {
+                displayName = displayName.substring(0, 8) + "...";
             }
-
-   // Clone and replace element to reset event listeners
-   const newBoothRectElement = boothRectElement.cloneNode(true);
-   if (boothRectElement.parentNode) {
-       boothRectElement.parentNode.replaceChild(newBoothRectElement, boothRectElement);
-   } else {
-       console.warn("Parent node not found:", boothIdKey);
-       return; 
-   }
-
-   // Add click handlers
-   newBoothRectElement.addEventListener('click', () => {
-       if (boothInfo.status === "available" && boothInfo.purchaseUrl) {
-           window.open(boothInfo.purchaseUrl, '_blank');
-       } else if (boothInfo.status === "sold") {
-           alert(`Booth ${boothInfo.companyName || boothInfo.originalBoothText || boothIdKey} is sold.`);
-       } else if (boothInfo.status === "reserved") {
-           alert(`Booth ${boothInfo.originalBoothText || boothIdKey} is currently unavailable.`);
-       }
-   });
-   
-   // Add tooltip handlers (only if showTooltip is not explicitly false)
-   if (tooltipElement && boothInfo.showTooltip !== false) {
-       newBoothRectElement.addEventListener('mousemove', (event) => {
-           let tooltipText = `Booth: ${boothInfo.originalBoothText || boothIdKey}`;
-           if (boothInfo.status === 'sold') {
-               tooltipText = boothInfo.companyName ? `${boothInfo.companyName} (Sold)` : `Booth ${boothInfo.originalBoothText || boothIdKey} (Sold)`;
-           } else if (boothInfo.status === 'reserved') {
-               tooltipText = `Booth ${boothInfo.originalBoothText || boothIdKey} (Unavailable)`;
-           } else {
-                tooltipText = `Booth ${boothInfo.originalBoothText || boothIdKey} (Available)`;
-           }
-           tooltipElement.textContent = tooltipText;
-           tooltipElement.style.display = 'block';
-           tooltipElement.style.left = (event.pageX + 15) + 'px';
-           tooltipElement.style.top = (event.pageY + 15) + 'px';
-       });
-       newBoothRectElement.addEventListener('mouseout', () => {
-           tooltipElement.style.display = 'none';
-       });
-   }
+            textElement.textContent = displayName;
+            textElement.style.fontSize = "32px"; // Smaller for company names
+        }
+        
+    } else if (boothInfo.status === "reserved") {
+        boothRectElement.style.fill = "#333333";
+        boothRectElement.style.cursor = "not-allowed";
+        boothRectElement.classList.add('booth-reserved');
+        boothRectElement.classList.remove('booth-available', 'booth-sold');
+        
+        if (textElement) {
+            textElement.style.fill = "#cccccc";
+            textElement.textContent = boothInfo.originalBoothText || "Reserved";
+            textElement.style.fontSize = "48px";
+        }
+    }
+    
+    // Simple click handler - no complex event cleanup
+    boothRectElement.onclick = () => {
+        if (boothInfo.status === "available" && boothInfo.purchaseUrl) {
+            window.open(boothInfo.purchaseUrl, '_blank');
+        }
+    };
 }
 
 // Initialize everything when DOM is ready
