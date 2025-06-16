@@ -1080,6 +1080,12 @@ setTimeout(() => {
         const rect = boothRect.getBoundingClientRect();
         const mapContainer = document.getElementById('boothMapContainer').getBoundingClientRect();
         
+        // Calculate font size based on booth size - much bigger!
+        const boothWidth = rect.width;
+        const boothHeight = rect.height;
+        const baseFontSize = Math.min(boothWidth / 8, boothHeight / 4); // Way more aggressive scaling
+        const fontSize = Math.max(baseFontSize, 24); // Minimum 24px instead of 16px
+        
         // Create label div
         const label = document.createElement('div');
         label.className = 'booth-label';
@@ -1092,8 +1098,9 @@ setTimeout(() => {
         label.style.fontWeight = '700';
         label.style.color = '#fff';
         label.style.textAlign = 'center';
-        label.style.fontSize = '16px';
-        label.style.lineHeight = '1.2';
+        label.style.fontSize = fontSize + 'px';
+        label.style.lineHeight = '1.1';
+        label.style.maxWidth = (boothWidth * 0.9) + 'px'; // 90% of booth width
         
         // Split on space for two lines
         const words = companyName.split(' ');
